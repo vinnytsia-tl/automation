@@ -1,1 +1,3 @@
-__all__ = ['ldap']
+from .ldap import LDAP
+
+__all__ = ['LDAP']
