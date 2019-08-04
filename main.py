@@ -21,7 +21,11 @@ LOG_DIR = os.getenv("LOG_DIR")
 DATABASE_PATH = os.getenv("DATABASE_PATH")
 SESSION_MAX_TIME = int(os.getenv("SESSION_MAX_TIME"))
 
+APP_ENVIRONMENT = os.getenv("AUTOMATION_ENVIRONMENT")
+if APP_ENVIRONMENT is None:
+    APP_ENVIRONMENT = "development"
+
 if __name__ == "__main__":
     database = Database(DATABASE_PATH)
     ldap_descriptor = LDAP(LDAP_SERVER, LDAP_PORT, LDAP_USE_SSL, LDAP_BIND_USER, LDAP_BIND_PASSWORD)
-    Web.start(WEB_LISTEN_HOST, WEB_LISTEN_PORT, LOG_DIR, SESSION_MAX_TIME, database, ldap_descriptor)
+    Web.start(APP_ENVIRONMENT, WEB_LISTEN_HOST, WEB_LISTEN_PORT, LOG_DIR, SESSION_MAX_TIME, database, ldap_descriptor)
