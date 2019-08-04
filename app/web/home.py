@@ -14,5 +14,5 @@ class Home():
     def index(self):
         if not authorized(self.database, self.session_max_time):
             raise cherrypy.HTTPRedirect("/auth")
-        title = "Automation VTL"
-        return self.template.render(title=title)
+
+        return self.template.render()
