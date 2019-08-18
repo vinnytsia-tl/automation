@@ -1,3 +1,3 @@
 # Automation
 
-Call management program
+School bells management program
