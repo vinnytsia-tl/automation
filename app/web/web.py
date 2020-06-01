@@ -24,23 +24,31 @@ CHERRYPY_CONFIG = {
 
 
 class Web:
+    production = None
+
     @staticmethod
-    def start(host, port, log_dir, session_max_time, database, ldap_descriptor):
-        app = Root(database, session_max_time)
-        app.auth = Auth(database, session_max_time, ldap_descriptor)
-        app.home = Home(database, session_max_time)
+    def start(environment, host, port, log_dir, session_max_time, database, ldap_descriptor):
+        Web.production = environment == "production"
 
         if not os.path.exists(log_dir):
             os.mkdir(log_dir)
 
+        app = Root(database, session_max_time)
+        app.auth = Auth(database, session_max_time, ldap_descriptor)
+        app.home = Home(database, session_max_time)
+
         cherrypy.config.update({
             'server.socket_host': host,
             'server.socket_port': port,
-            'engine.autoreload_on': False,
-            'log.screen': False,
+            'engine.autoreload.on': not Web.production,
+            'engine.autoreload.frequency': 1,
+            'log.screen': not Web.production,
             'log.error_file': log_dir + '/web_error.log',
             'log.access_file': log_dir + '/web_access.log',
         })
+
+        if Web.production:
+            CHERRYPY_CONFIG['/']['tools.sessions.secure'] = True
 
         cherrypy.engine.subscribe('start', database.cleanup)
         cherrypy.tree.mount(app, '/', CHERRYPY_CONFIG)
@@ -52,4 +60,5 @@ class Web:
         headers = cherrypy.response.headers
         headers['X-Frame-Options'] = 'DENY'
         headers['X-XSS-Protection'] = '1; mode=block'
-        # headers['Content-Security-Policy'] = "default-src 'self' https;"
+        if Web.production:
+            headers['Content-Security-Policy'] = "default-src 'self' https;"
