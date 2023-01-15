@@ -53,6 +53,7 @@ class Web:
         cherrypy.engine.subscribe('start', database.cleanup)
         cherrypy.tree.mount(app, '/', CHERRYPY_CONFIG)
         cherrypy.engine.start()
+        cherrypy.engine.block()
 
     @staticmethod
     @cherrypy.tools.register('before_finalize', priority=60)
