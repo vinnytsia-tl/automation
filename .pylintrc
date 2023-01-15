@@ -13,3 +13,6 @@ max-line-length=125
 
 [DESIGN]
 max-args=10
+
+[TYPECHECK]
+generated-members=cherrypy.session
