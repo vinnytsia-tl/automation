@@ -5,6 +5,7 @@ import cherrypy
 from .root import Root
 from .auth import Auth
 from .home import Home
+from .devices import Devices
 
 
 CHERRYPY_CONFIG = {
@@ -36,6 +37,7 @@ class Web:
         app = Root(database, session_max_time)
         app.auth = Auth(database, session_max_time, ldap_descriptor)
         app.home = Home(database, session_max_time)
+        app.devices = Devices(database)
 
         cherrypy.config.update({
             'server.socket_host': host,

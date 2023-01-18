@@ -18,6 +18,15 @@ class Database():
                 "time"        NUMERIC   NOT NULL
             );
         ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS "devices" (
+                "id"           INT    NOT NULL  UNIQUE,
+                "name"         TEXT   NOT NULL  UNIQUE,
+                "description"  TEXT   NULL,
+                "type"         INT    NOT NULL,
+                "options"      TEXT   NOT NULL
+            );
+        ''')
         self.commit()
 
     def __connection__(self) -> sqlite3.Connection:
