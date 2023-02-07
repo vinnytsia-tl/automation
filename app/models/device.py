@@ -42,6 +42,21 @@ class Device:
         db.commit()
         return Device(dev_id, name, description, dev_type, options)
 
+    @staticmethod
+    def create2(db: Database, name: str, description: str,
+               dev_type: DeviceType, options: str) -> Device:
+
+        cursor = db.cursor()
+        cursor.execute('''
+            INSERT INTO "devices" (
+                "name", "description", "type", "options"
+            ) VALUES (?, ?, ?, ?)
+        ''', (
+           name, description, dev_type, options
+        ))
+        dev_id = db.commit()
+        return Device(dev_id, name, description, dev_type, options)
+
     def save(self, db: Database) -> Device:
         cursor = db.cursor()
         cursor.execute('''

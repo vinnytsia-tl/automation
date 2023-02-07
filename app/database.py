@@ -20,11 +20,11 @@ class Database():
         ''')
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS "devices" (
-                "id"           INT    NOT NULL  UNIQUE,
-                "name"         TEXT   NOT NULL  UNIQUE,
-                "description"  TEXT   NULL,
-                "type"         INT    NOT NULL,
-                "options"      TEXT   NOT NULL
+                "id"           INTEGER PRIMARY KEY UNIQUE,
+                "name"         TEXT    NOT NULL    UNIQUE,
+                "description"  TEXT    NULL,
+                "type"         INT     NOT NULL,
+                "options"      TEXT    NOT NULL
             );
         ''')
         self.commit()
