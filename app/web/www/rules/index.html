@@ -1,0 +1,59 @@
+{% extends 'www/templates/wrapper.html' %}
+{% block body %}
+<div class="ui container">
+    {% include "www/templates/menu.html" %}
+    <div class="ui segment">
+        <div class="ui grid">
+            <div class="row">
+                <div class="eight wide column">
+                    <h2 class="ui header">Правила</h2>
+                </div>
+                <div class="right aligned eight wide column">
+                    <a href="/rules/new">
+                        <button class="ui green button icon">
+                            <i aria-hidden="true" class="calendar plus outline icon"></i>
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <table class="ui celled striped table">
+                        <thead>
+                            <tr>
+                                <th class="collapsing">#</th>
+                                <th>Назва</th>
+                                <th>Опис</th>
+                                <th>Девайс</th>
+                                <th>Початок</th>
+                                <th>Протяжність</th>
+                                <th class="collapsing"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in rules %}
+                            <tr>
+                                <td>{{ rule.id }}</td>
+                                <td>{{ rule.name }}</td>
+                                <td>{{ rule.description }}</td>
+                                <td>{{ rule.device_id }}</td>
+                                <td>{{ rule.start_time }}</td>
+                                <td>{{ rule.duration }}</td>
+                                <td>
+                                    <div class="ui buttons small">
+                                        <button class="ui yellow button icon"><i aria-hidden="true"
+                                                class="edit icon"></i></button>
+                                        <button class="ui red button icon"><i aria-hidden="true"
+                                                class="trash alternate outline icon"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

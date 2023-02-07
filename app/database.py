@@ -27,6 +27,16 @@ class Database():
                 "options"      TEXT    NOT NULL
             );
         ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS "rules" (
+                "id"           INTEGER PRIMARY KEY UNIQUE,
+                "name"         TEXT    NOT NULL    UNIQUE,
+                "description"  TEXT    NULL,
+                "device_id"    INT     NOT NULL,
+                "start_time"   INT     NOT NULL,
+                "duration"     INT     NOT NULL
+            );
+        ''')
         self.commit()
 
     def __connection__(self) -> sqlite3.Connection:
