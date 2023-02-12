@@ -1,7 +1,7 @@
 import cherrypy
 from jinja2 import Environment, PackageLoader
 
-from .functions import authorize
+from .functions import authenticate
 
 
 class Home():
@@ -11,6 +11,6 @@ class Home():
         self.template = Environment(loader=PackageLoader('app.web', '')).get_template('www/home/index.html')
 
     @cherrypy.expose
-    @authorize
+    @authenticate
     def index(self):
         return self.template.render()

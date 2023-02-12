@@ -3,7 +3,7 @@ import time
 import cherrypy
 from jinja2 import Environment, PackageLoader
 
-from .functions import authorized, authorize
+from .functions import is_authenticated, authenticate
 
 
 class Auth():
@@ -15,14 +15,14 @@ class Auth():
 
     @cherrypy.expose
     def index(self):
-        if authorized(self.database, self.session_max_time):
+        if is_authenticated(self.database, self.session_max_time):
             raise cherrypy.HTTPRedirect("/home")
 
         return self.template.render()
 
     @cherrypy.expose
     def login(self, username, password):
-        if authorized(self.database, self.session_max_time):
+        if is_authenticated(self.database, self.session_max_time):
             raise cherrypy.HTTPRedirect("/home")
 
         if not self.ldap_descriptor.login(username, password):
@@ -43,7 +43,7 @@ class Auth():
         raise cherrypy.HTTPRedirect("/home")
 
     @cherrypy.expose
-    @authorize
+    @authenticate
     def logout(self):
         cursor = self.database.cursor()
         exe_str = "DELETE FROM sessions WHERE session_id = ?;"

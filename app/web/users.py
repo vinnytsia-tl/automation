@@ -2,7 +2,7 @@ import cherrypy
 from jinja2 import Environment, PackageLoader
 
 from ..models import User
-from .functions import authorize
+from .functions import authenticate
 
 
 class Users():
@@ -13,7 +13,7 @@ class Users():
         self.index_template = Environment(loader=PackageLoader('app.web', '')).get_template('www/users/index.html')
 
     @cherrypy.expose
-    @authorize
+    @authenticate
     def index(self):
         users = User.all(self.ldap_descriptor, self.database)
         params = {'users': users}

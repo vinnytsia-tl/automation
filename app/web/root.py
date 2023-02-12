@@ -1,6 +1,6 @@
 import cherrypy
 
-from .functions import authorized
+from .functions import is_authenticated
 
 
 class Root():
@@ -10,4 +10,4 @@ class Root():
 
     @cherrypy.expose
     def index(self):
-        raise cherrypy.HTTPRedirect("/home" if authorized(self.database, self.session_max_time) else "/auth")
+        raise cherrypy.HTTPRedirect("/home" if is_authenticated(self.database, self.session_max_time) else "/auth")
