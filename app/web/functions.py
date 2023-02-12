@@ -3,6 +3,9 @@ from typing import Callable
 import time
 import cherrypy
 
+from ..models import UserRole
+from ..database import Database
+
 
 def is_authenticated(database, session_max_time):
     cursor = database.cursor()
@@ -21,3 +24,25 @@ def authenticate(func: Callable):
         return func(self, *args)
 
     return wrapper
+
+
+def get_current_role(database: Database):
+    cursor = database.cursor()
+    cursor.execute('''
+        SELECT role FROM users
+        INNER JOIN sessions ON users.login = sessions.username
+        WHERE session_id = ?
+    ''', (cherrypy.session.id,))
+    res = cursor.fetchone() or (0,)
+    return UserRole(res[0])
+
+
+def authorize(role: UserRole = UserRole.COMMON):
+    def wrap(func: Callable):
+        def wrapper(self, *args):
+            current_role = get_current_role(self.database)
+            if current_role.value < role.value:
+                raise cherrypy.HTTPRedirect("/home")
+            return func(self, current_role, *args)
+        return wrapper
+    return wrap
