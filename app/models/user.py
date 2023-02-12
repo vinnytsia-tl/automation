@@ -23,6 +23,11 @@ class User:
         cursor = db.cursor()
         cursor.execute('UPDATE "users" SET "role" = ? WHERE "login" = ?', (self.role.value, self.login))
         db.commit()
+
+        if cursor.rowcount == 0:
+            cursor.execute('INSERT INTO "users" ("login", "role") VALUES (?, ?)', (self.login, self.role.value))
+            db.commit()
+
         return self
 
     @staticmethod
