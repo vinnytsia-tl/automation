@@ -41,3 +41,18 @@ class User:
         roles = dict(cursor.fetchall())
 
         return [User(login=login, name=name, role=UserRole(roles.get(login, 0))) for (login, name) in ldap_users]
+
+    @staticmethod
+    def find(ldap: LDAP, db: Database, login: str) -> User:
+        ldap_user = ldap.getuser(login)
+        if ldap_user is None:
+            return None
+
+        login, name = ldap_user
+
+        cursor = db.cursor()
+        cursor.execute('SELECT "role" FROM "users" WHERE "login" = ?', (login,))
+        row = cursor.fetchone()
+        role = UserRole.COMMON if row is None else UserRole(row[0])
+
+        return User(login=login, name=name, role=role)

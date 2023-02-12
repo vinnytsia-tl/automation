@@ -23,9 +23,14 @@ class LDAP():
 
         return [(entry.userPrincipalName.value, entry.displayName.value) for entry in conn.entries]
 
-    def login(self, username, password):
-        if username == 'admin@example.com' and password == 'admin@example.com':
-            return True
+    # TODO: make a ldap query
+    def getuser(self, user_principal_name, search_base=None):
+        users = self.getusers(search_base=search_base)
+        for (login, name) in users:
+            if login == user_principal_name:
+                return (login, name)
+        return None
 
+    def login(self, username, password):
         conn = ldap3.Connection(self.server, user=username, password=password)
         return conn.bind()

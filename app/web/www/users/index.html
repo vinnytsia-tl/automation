@@ -24,7 +24,28 @@
                             <tr>
                                 <td>{{ user.login }}</td>
                                 <td>{{ user.name }}</td>
-                                <td>{{ user.role.name }}</td>
+                                <td>
+                                    {% if showForm %}
+                                        <form class="ui form" action="/users/update" method="post">
+                                            <input hidden name="login" value="{{ user.login }}" />
+                                            <div class="field">
+                                                <select class="ui fluid dropdown" onchange="this.form.submit()" name="role">
+                                                    <option value="0" {{ 'selected' if user.role.value == 0 else '' }}>
+                                                        COMMON
+                                                    </option>
+                                                    <option value="1" {{ 'selected' if user.role.value == 1 else '' }}>
+                                                        MODERATOR
+                                                    </option>
+                                                    <option value="2" {{ 'selected' if user.role.value == 2 else '' }}>
+                                                        ADMIN
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        {{ user.role.name }}
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>

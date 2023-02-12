@@ -18,10 +18,10 @@ def is_authenticated(database, session_max_time):
 
 
 def authenticate(func: Callable):
-    def wrapper(self, *args):
+    def wrapper(self, *args, **kwargs):
         if not is_authenticated(self.database, self.session_max_time):
             raise cherrypy.HTTPRedirect("/auth")
-        return func(self, *args)
+        return func(self, *args, **kwargs)
 
     return wrapper
 
@@ -39,10 +39,10 @@ def get_current_role(database: Database):
 
 def authorize(role: UserRole = UserRole.COMMON):
     def wrap(func: Callable):
-        def wrapper(self, *args):
+        def wrapper(self, *args, **kwargs):
             current_role = get_current_role(self.database)
             if current_role.value < role.value:
                 raise cherrypy.HTTPRedirect("/home")
-            return func(self, current_role, *args)
+            return func(self, current_role, *args, **kwargs)
         return wrapper
     return wrap
