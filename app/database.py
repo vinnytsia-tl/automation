@@ -37,6 +37,12 @@ class Database():
                 "duration"     INT     NOT NULL
             );
         ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS "users" (
+                "login"        TEXT    PRIMARY KEY UNIQUE,
+                "role"         INT     NOT NULL DEFAULT 0
+            );
+        ''')
         self.commit()
 
     def __connection__(self) -> sqlite3.Connection:
