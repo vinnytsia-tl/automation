@@ -1,7 +1,7 @@
 import cherrypy
 from jinja2 import Environment, PackageLoader
 
-from .functions import authorized
+from .functions import authorize
 
 
 class Home():
@@ -11,8 +11,6 @@ class Home():
         self.template = Environment(loader=PackageLoader('app.web', '')).get_template('www/home/index.html')
 
     @cherrypy.expose
+    @authorize
     def index(self):
-        if not authorized(self.database, self.session_max_time):
-            raise cherrypy.HTTPRedirect("/auth")
-
         return self.template.render()

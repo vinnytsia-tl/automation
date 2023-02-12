@@ -39,9 +39,9 @@ class Web:
         app = Root(database, session_max_time)
         app.auth = Auth(database, session_max_time, ldap_descriptor)
         app.home = Home(database, session_max_time)
-        app.devices = Devices(database)
-        app.rules = Rules(database)
-        app.users = Users(database, ldap_descriptor)
+        app.devices = Devices(database, session_max_time)
+        app.rules = Rules(database, session_max_time)
+        app.users = Users(database, ldap_descriptor, session_max_time)
 
         cherrypy.config.update({
             'server.socket_host': host,

@@ -3,7 +3,7 @@ import time
 import cherrypy
 from jinja2 import Environment, PackageLoader
 
-from .functions import authorized
+from .functions import authorized, authorize
 
 
 class Auth():
@@ -43,10 +43,8 @@ class Auth():
         raise cherrypy.HTTPRedirect("/home")
 
     @cherrypy.expose
+    @authorize
     def logout(self):
-        if not authorized(self.database, self.session_max_time):
-            raise cherrypy.HTTPRedirect("/auth")
-
         cursor = self.database.cursor()
         exe_str = "DELETE FROM sessions WHERE session_id = ?;"
         cursor.execute(exe_str, [cherrypy.session.id])
