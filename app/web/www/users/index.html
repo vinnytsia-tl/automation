@@ -1,0 +1,37 @@
+{% extends 'www/templates/wrapper.html' %}
+{% block body %}
+<div class="ui container">
+    {% include "www/templates/menu.html" %}
+    <div class="ui segment">
+        <div class="ui grid">
+            <div class="row">
+                <div class="eight wide column">
+                    <h2 class="ui header">Users</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <table class="ui celled striped table">
+                        <thead>
+                            <tr>
+                                <th class="collapsing">Логін</th>
+                                <th>Ім'я</th>
+                                <th>Роль</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.login }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.role.name }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
