@@ -42,10 +42,12 @@
                                 {% if isAdmin %}
                                 <td>
                                     <div class="ui buttons small">
-                                        <button class="ui yellow button icon"><i aria-hidden="true"
-                                                class="edit icon"></i></button>
-                                        <button class="ui red button icon"><i aria-hidden="true"
-                                                class="trash alternate outline icon"></i></button>
+                                        <button class="ui yellow button icon">
+                                            <i aria-hidden="true" class="edit icon"></i>
+                                        </button>
+                                        <a href="/devices/destroy?device_id={{ dev.id }}" class="ui red button icon">
+                                            <i aria-hidden="true" class="trash alternate outline icon"></i>
+                                        </a>
                                     </div>
                                 </td>
                                 {% endif %}

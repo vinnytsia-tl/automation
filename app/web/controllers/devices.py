@@ -33,3 +33,11 @@ class Devices():
     def create(self, name, description, kind, options):
         Device(name=name, description=description, type=kind, options=options).save()
         raise cherrypy.HTTPRedirect("/devices")
+
+    @cherrypy.expose
+    @cherrypy.tools.allow(methods=['GET'])
+    @authenticate
+    @authorize(UserRole.ADMIN)
+    def destroy(self, device_id):
+        Device.find(device_id).destroy()
+        raise cherrypy.HTTPRedirect("/devices")
