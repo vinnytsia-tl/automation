@@ -1,7 +1,7 @@
 import cherrypy
 
 from app.web.utils import authenticate, authorize
-from app.models import Device, UserRole
+from app.models import Device, UserRole, DeviceType
 from app.config import Config
 
 
@@ -9,6 +9,7 @@ class Devices():
     def __init__(self):
         self.index_template = Config.jinja_env.get_template('devices/index.html')
         self.new_template = Config.jinja_env.get_template('devices/new.html')
+        self.edit_template = Config.jinja_env.get_template('devices/edit.html')
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -27,11 +28,32 @@ class Devices():
         return self.new_template.render()
 
     @cherrypy.expose
+    @cherrypy.tools.allow(methods=['GET'])
+    @authenticate
+    @authorize(UserRole.ADMIN)
+    def edit(self, device_id: int):
+        device = Device.find(device_id)
+        return self.edit_template.render({'device': device})
+
+    @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.ADMIN)
     def create(self, name, description, kind, options):
         Device(name=name, description=description, type=kind, options=options).save()
+        raise cherrypy.HTTPRedirect("/devices")
+
+    @cherrypy.expose
+    @cherrypy.tools.allow(methods=['POST'])
+    @authenticate
+    @authorize(UserRole.ADMIN)
+    def update(self, device_id, name, description, kind, options):
+        device = Device.find(device_id)
+        device.name = name
+        device.description = description
+        device.type = DeviceType.cast(kind)
+        device.options = options
+        device.save()
         raise cherrypy.HTTPRedirect("/devices")
 
     @cherrypy.expose

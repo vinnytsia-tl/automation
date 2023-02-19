@@ -1,23 +1,23 @@
-<form class="ui form" method="post" action="/devices/create">
+<form class="ui form" method="post" action="{{ '/devices/update?device_id=' ~ device.id if device is defined else '/devices/create' }}">
     <div class="field">
         <label>Назва</label>
-        <input type="text" name="name" required>
+        <input type="text" name="name" value="{{device.name if device is defined and device.name}}" required>
     </div>
     <div class="field">
         <label>Опис</label>
-        <input type="text" name="description" required>
+        <input type="text" name="description" value="{{device.description if device is defined and device.description}}" required>
     </div>
     <div class="field">
         <label>Тип</label>
         <select class="ui fluid dropdown" name="kind" required>
             <option value="">Тип</option>
-            <option value="GPIO">GPIO</option>
-            <option value="AUDIO">AUDIO</option>
+            <option {{ 'selected' if device is defined and device.type.value == 1 }} value="GPIO">GPIO</option>
+            <option {{ 'selected' if device is defined and device.type.value == 2 }} value="AUDIO">AUDIO</option>
         </select>
     </div>
     <div class="field">
         <label>Параметри</label>
-        <input type="text" name="options">
+        <input type="text" name="options" value="{{device.options if device is defined and device.options}}">
     </div>
-    <button class="ui button" type="submit">Створити</button>
+    <button class="ui button" type="submit">Зберегти</button>
 </form>
