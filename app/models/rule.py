@@ -3,18 +3,19 @@ from dataclasses import dataclass
 from typing import List, Optional
 
 from app.config import Config
+from app.models import Device
 
-INSERT_SQL = 'INSERT INTO "rules" ("name", "description", "device_id", "start_time", "duration") VALUES (?, ?, ?, ?, ?, ?)'
+INSERT_SQL = 'INSERT INTO "rules" ("name", "description", "device_id", "start_time", "duration") VALUES (?, ?, ?, ?, ?)'
 UPDATE_SQL = '''
     UPDATE "rules"
     SET "name" = ?,
         "description" = ?,
         "device_id" = ?,
-        "start_time" = ?
+        "start_time" = ?,
         "duration" = ?
     WHERE "id" = ?
 '''
-FETCH_ALL_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration" FROM "rules"'
+FETCH_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration" FROM "rules"'
 
 
 @dataclass
@@ -26,6 +27,9 @@ class Rule:
     start_time: Optional[int] = None
     duration: Optional[int] = None
 
+    def get_device(self) -> Device:
+        return Device.find(self.device_id)
+
     def save(self):
         with Config.database.get_connection() as db:
             if self.id is None:
@@ -36,7 +40,16 @@ class Rule:
                 db.execute(UPDATE_SQL, (self.name, self.description,
                                         self.device_id, self.start_time, self.duration, self.id))
 
+    def destroy(self):
+        with Config.database.get_connection() as db:
+            db.execute('DELETE FROM "rules" WHERE "id" = ?', (self.id,))
+
     @staticmethod
     def all() -> List[Rule]:
-        cursor = Config.database.execute(FETCH_ALL_SQL)
+        cursor = Config.database.execute(FETCH_SQL)
         return [Rule(*values) for values in cursor.fetchall()]
+
+    @staticmethod
+    def find(rule_id: int) -> Rule:
+        cursor = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (rule_id,))
+        return Rule(*cursor.fetchone())

@@ -8,13 +8,13 @@
                 <div class="eight wide column">
                     <h2 class="ui header">Правила</h2>
                 </div>
+                {% if isModerator %}
                 <div class="right aligned eight wide column">
-                    <a href="/rules/new">
-                        <button class="ui green button icon">
-                            <i aria-hidden="true" class="calendar plus outline icon"></i>
-                        </button>
+                    <a href="/rules/new" class="ui green button icon">
+                        <i aria-hidden="true" class="calendar plus outline icon"></i>
                     </a>
                 </div>
+                {% endif %}
             </div>
             <div class="row">
                 <div class="column">
@@ -24,7 +24,7 @@
                                 <th class="collapsing">#</th>
                                 <th>Назва</th>
                                 <th>Опис</th>
-                                <th>Девайс</th>
+                                <th>Пристрій</th>
                                 <th>Початок</th>
                                 <th>Протяжність</th>
                                 <th class="collapsing"></th>
@@ -36,16 +36,20 @@
                                 <td>{{ rule.id }}</td>
                                 <td>{{ rule.name }}</td>
                                 <td>{{ rule.description }}</td>
-                                <td>{{ rule.device_id }}</td>
+                                <td>{{ rule.get_device().name }}</td>
                                 <td>{{ rule.start_time }}</td>
                                 <td>{{ rule.duration }}</td>
                                 <td>
+                                    {% if isModerator %}
                                     <div class="ui buttons small">
-                                        <button class="ui yellow button icon"><i aria-hidden="true"
-                                                class="edit icon"></i></button>
-                                        <button class="ui red button icon"><i aria-hidden="true"
-                                                class="trash alternate outline icon"></i></button>
+                                        <a href="/rules/edit?rule_id={{ rule.id }}" class="ui yellow button icon">
+                                            <i aria-hidden="true" class="edit icon"></i>
+                                        </a>
+                                        <a href="/rules/destroy?rule_id={{ rule.id }}" class="ui red button icon">
+                                            <i aria-hidden="true" class="trash alternate outline icon"></i>
+                                        </a>
                                     </div>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}

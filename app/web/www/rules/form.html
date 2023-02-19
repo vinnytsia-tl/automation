@@ -1,0 +1,28 @@
+<form class="ui form" method="post" action="{{ '/rules/update?rule_id=' ~ rule.id if rule is defined else '/rules/create' }}">
+    <div class="field">
+        <label>Назва</label>
+        <input type="text" name="name" value="{{rule.name if rule is defined and rule.name}}" required>
+    </div>
+    <div class="field">
+        <label>Опис</label>
+        <input type="text" name="description" value="{{rule.description if rule is defined and rule.description}}" required>
+    </div>
+    <div class="field">
+        <label>Пристрій</label>
+        <select class="ui fluid dropdown" name="device_id" required>
+            <option value=""></option>
+            {% for dev in devices %}
+                <option {{ 'selected' if rule is defined and rule.device_id == dev.id }} value="{{dev.id}}">{{dev.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field">
+        <label>Час початку</label>
+        <input type="text" name="start_time" value="{{rule.start_time if rule is defined and rule.start_time}}" required>
+    </div>
+    <div class="field">
+        <label>Протяжність</label>
+        <input type="text" name="duration" value="{{rule.duration if rule is defined and rule.duration}}" required>
+    </div>
+    <button class="ui button" type="submit">Створити</button>
+</form>
