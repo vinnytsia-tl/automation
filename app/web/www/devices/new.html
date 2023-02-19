@@ -1,33 +1,17 @@
-{% extends 'www/templates/wrapper.html' %}
+{% extends 'templates/wrapper.html' %}
 {% block body %}
 <div class="ui container">
-    {% include "www/templates/menu.html" %}
+    {% include "templates/menu.html" %}
     <div class="ui segment">
         <div class="ui grid">
             <div class="row">
                 <div class="column">
-                    <form class="ui form" method="post" action="/devices/post_new">
-                        <div class="field">
-                            <label>Назва</label>
-                            <input type="text" name="name">
-                        </div>
-                        <div class="field">
-                            <label>Опис</label>
-                            <input type="text" name="description">
-                        </div>
-                        <div class="field">
-                            <label>Тип</label>
-                            <select class="ui fluid dropdown" name="type">
-                                <option value="">Тип</option>
-                                <option value="1">GPIO</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label>Параметри</label>
-                            <input type="text" name="options">
-                        </div>
-                        <button class="ui button" type="submit">Створити</button>
-                    </form>
+                    <h2 class="ui header">Створення пристрою</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    {% include "devices/form.html" %}
                 </div>
             </div>
         </div>

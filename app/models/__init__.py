@@ -1,4 +1,3 @@
-from .device import Device
+from .device import Device, DeviceType
 from .rule import Rule
-from .user import User
-from .user import UserRole
+from .user import User, UserRole

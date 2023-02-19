@@ -1,5 +1,6 @@
 [MASTER]
 jobs=0
+good-names=db,id
 
 [MESSAGES CONTROL]
 disable=missing-docstring,too-few-public-methods

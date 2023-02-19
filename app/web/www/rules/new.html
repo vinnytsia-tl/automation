@@ -1,12 +1,12 @@
-{% extends 'www/templates/wrapper.html' %}
+{% extends 'templates/wrapper.html' %}
 {% block body %}
 <div class="ui container">
-    {% include "www/templates/menu.html" %}
+    {% include "templates/menu.html" %}
     <div class="ui segment">
         <div class="ui grid">
             <div class="row">
                 <div class="column">
-                    <form class="ui form" method="post" action="/rules/post_new">
+                    <form class="ui form" method="post" action="/rules/create">
                         <div class="field">
                             <label>Назва</label>
                             <input type="text" name="name">

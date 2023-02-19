@@ -1,14 +1,8 @@
 import os
-
 import cherrypy
 
-from .root import Root
-from .auth import Auth
-from .home import Home
-from .devices import Devices
-from .rules import Rules
-from .users import Users
-
+from app.config import Config
+from .controllers import Auth, Devices, Home, Root, Rules, Users
 
 CHERRYPY_CONFIG = {
     '/': {
@@ -27,36 +21,29 @@ CHERRYPY_CONFIG = {
 
 
 class Web:
-    production = None
-
     @staticmethod
-    def start(environment, host, port, log_dir, session_max_time, database, ldap_descriptor):
-        Web.production = environment == "production"
-
-        if not os.path.exists(log_dir):
-            os.mkdir(log_dir)
-
-        app = Root(database, session_max_time)
-        app.auth = Auth(database, session_max_time, ldap_descriptor)
-        app.home = Home(database, session_max_time)
-        app.devices = Devices(database, session_max_time)
-        app.rules = Rules(database, session_max_time)
-        app.users = Users(database, ldap_descriptor, session_max_time)
+    def start():
+        app = Root()
+        app.auth = Auth()
+        app.home = Home()
+        app.devices = Devices()
+        app.rules = Rules()
+        app.users = Users()
 
         cherrypy.config.update({
-            'server.socket_host': host,
-            'server.socket_port': port,
-            'engine.autoreload.on': not Web.production,
+            'server.socket_host': Config.web_listen_host,
+            'server.socket_port': Config.web_listen_port,
+            'engine.autoreload.on': not Config.production,
             'engine.autoreload.frequency': 1,
-            'log.screen': not Web.production,
-            'log.error_file': log_dir + '/web_error.log',
-            'log.access_file': log_dir + '/web_access.log',
+            'log.screen': not Config.production,
+            'log.error_file': Config.log_directory + '/web_error.log',
+            'log.access_file': Config.log_directory + '/web_access.log',
         })
 
-        if Web.production:
+        if Config.production:
             CHERRYPY_CONFIG['/']['tools.sessions.secure'] = True
 
-        cherrypy.engine.subscribe('start', database.cleanup)
+        cherrypy.engine.subscribe('start', Config.database.cleanup)
         cherrypy.tree.mount(app, '/', CHERRYPY_CONFIG)
         cherrypy.engine.start()
         cherrypy.engine.block()
@@ -67,5 +54,5 @@ class Web:
         headers = cherrypy.response.headers
         headers['X-Frame-Options'] = 'DENY'
         headers['X-XSS-Protection'] = '1; mode=block'
-        if Web.production:
+        if Config.production:
             headers['Content-Security-Policy'] = "default-src 'self' https;"

@@ -1,83 +1,62 @@
 from __future__ import annotations
 from enum import Enum
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
-from ..database import Database
+from app.config import Config
 
 
 class DeviceType(Enum):
     GPIO = 1
-    MAX = 2
+    AUDIO = 2
+
+    @staticmethod
+    def cast(value: int | str | DeviceType | None) -> Optional[DeviceType]:
+        if value is None:
+            return None
+        if isinstance(value, DeviceType):
+            return value
+        if isinstance(value, int):
+            return DeviceType(value)
+        if isinstance(value, str):
+            return DeviceType[value]
+        raise TypeError(f"Cannot cast {value} to DeviceType")
+
+
+INSERT_SQL = 'INSERT INTO "devices" ("name", "description", "type", "options") VALUES (?, ?, ?, ?)'
+UPDATE_SQL = 'UPDATE "devices" SET "name" = ?, "description" = ?, "type" = ?, "options" = ? WHERE "id" = ?'
+FETCH_SQL = 'SELECT "id", "name", "description", "type", "options" FROM "devices"'
 
 
 @dataclass
 class Device:
-    id: int
-    name: str
-    description: str
-    type: DeviceType
-    options: str
+    id: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    type: Optional[DeviceType] = None
+    options: Optional[str] = None
 
-    def __init__(self, dev_id: int = None, name: str = None, description: str = None,
-                 dev_type: DeviceType = None, options: str = None):
-        self.id = dev_id
-        self.name = name
-        self.description = description
-        self.type = dev_type
-        self.options = options
+    def __post_init__(self):
+        self.type = DeviceType.cast(self.type)
 
-    @staticmethod
-    def create(db: Database, dev_id: int, name: str, description: str,
-               dev_type: DeviceType, options: str) -> Device:
+    def save(self):
+        with Config.database.get_connection() as db:
+            if self.id is None:
+                cursor = db.execute(INSERT_SQL, (self.name, self.description, self.type.value, self.options))
+                self.id = cursor.lastrowid
+            else:
+                db.execute(UPDATE_SQL, (self.name, self.description, self.type.value, self.options, self.id))
 
-        cursor = db.cursor()
-        cursor.execute('''
-            INSERT INTO "devices" (
-                "id", "name", "description", "type", "options"
-            ) VALUES (?, ?, ?, ?, ?)
-        ''', (
-            dev_id, name, description, dev_type, options
-        ))
-        db.commit()
-        return Device(dev_id, name, description, dev_type, options)
+    def destroy(self):
+        with Config.database.get_connection() as db:
+            db.execute('DELETE FROM "devices" WHERE "id" = ?', (self.id,))
 
     @staticmethod
-    def create2(db: Database, name: str, description: str,
-               dev_type: DeviceType, options: str) -> Device:
-
-        cursor = db.cursor()
-        cursor.execute('''
-            INSERT INTO "devices" (
-                "name", "description", "type", "options"
-            ) VALUES (?, ?, ?, ?)
-        ''', (
-           name, description, dev_type, options
-        ))
-        dev_id = db.commit()
-        return Device(dev_id, name, description, dev_type, options)
-
-    def save(self, db: Database) -> Device:
-        cursor = db.cursor()
-        cursor.execute('''
-            UPDATE "devices"
-            SET "name" = ?,
-                "description" = ?,
-                "dev_type" = ?,
-                "options" = ?
-            WHERE "id" = ?
-        ''', (
-            self.name, self.description, self.type, self.options, self.id
-        ))
-        db.commit()
-        return self
-
-    @staticmethod
-    def all(db: Database) -> List[Device]:
-        cursor = db.cursor()
-        cursor.execute('''
-            SELECT "id", "name", "description", "type", "options"
-            FROM "devices"
-        ''')
-
+    def all() -> List[Device]:
+        cursor = Config.database.execute(FETCH_SQL)
         return [Device(*values) for values in cursor.fetchall()]
+
+    @staticmethod
+    def find(device_id: int) -> Device:
+        cursor = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (device_id,))
+        return Device(*cursor.fetchone())

@@ -1,0 +1,23 @@
+<form class="ui form" method="post" action="/devices/create">
+    <div class="field">
+        <label>Назва</label>
+        <input type="text" name="name" required>
+    </div>
+    <div class="field">
+        <label>Опис</label>
+        <input type="text" name="description" required>
+    </div>
+    <div class="field">
+        <label>Тип</label>
+        <select class="ui fluid dropdown" name="kind" required>
+            <option value="">Тип</option>
+            <option value="GPIO">GPIO</option>
+            <option value="AUDIO">AUDIO</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>Параметри</label>
+        <input type="text" name="options">
+    </div>
+    <button class="ui button" type="submit">Створити</button>
+</form>

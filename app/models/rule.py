@@ -1,81 +1,42 @@
 from __future__ import annotations
-from enum import Enum
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
-from ..database import Database
+from app.config import Config
+
+INSERT_SQL = 'INSERT INTO "rules" ("name", "description", "device_id", "start_time", "duration") VALUES (?, ?, ?, ?, ?, ?)'
+UPDATE_SQL = '''
+    UPDATE "rules"
+    SET "name" = ?,
+        "description" = ?,
+        "device_id" = ?,
+        "start_time" = ?
+        "duration" = ?
+    WHERE "id" = ?
+'''
+FETCH_ALL_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration" FROM "rules"'
 
 
 @dataclass
 class Rule:
-    id: int
-    name: str
-    description: str
-    device_id: int
-    start_time: int
-    duration: int
+    id: Optional[int] = None
+    name: Optional[str] = None
+    description: Optional[str] = None
+    device_id: Optional[int] = None
+    start_time: Optional[int] = None
+    duration: Optional[int] = None
 
-    def __init__(self, rule_id: int = None, name: str = None, description: str = None,
-                 device_id: int = None, start_time: int = None, duration: int = None):
-        self.id = rule_id
-        self.name = name
-        self.description = description
-        self.device_id = device_id
-        self.start_time = start_time
-        self.duration = duration
-
-    @staticmethod
-    def create(db: Database, rule_id: int = None, name: str = None, description: str = None,
-                 device_id: int = None, start_time: int = None, duration: int = None) -> Rule:
-
-        cursor = db.cursor()
-        cursor.execute('''
-            INSERT INTO "rules" (
-                "id", "name", "description", "device_id", "start_time", "duration"
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        ''', (
-            rule_id, name, description, device_id, start_time, duration
-        ))
-        db.commit()
-        return Rule(rule_id, name, description, device_id, start_time, duration)
+    def save(self):
+        with Config.database.get_connection() as db:
+            if self.id is None:
+                cursor = db.execute(INSERT_SQL, (self.name, self.description,
+                                    self.device_id, self.start_time, self.duration))
+                self.id = cursor.lastrowid
+            else:
+                db.execute(UPDATE_SQL, (self.name, self.description,
+                                        self.device_id, self.start_time, self.duration, self.id))
 
     @staticmethod
-    def create2(db: Database, name: str = None, description: str = None,
-                 device_id: int = None, start_time: int = None, duration: int = None) -> Rule:
-
-        cursor = db.cursor()
-        cursor.execute('''
-            INSERT INTO "rules" (
-                 "name", "description", "device_id", "start_time", "duration"
-            ) VALUES (?, ?, ?, ?, ?)
-        ''', (
-            name, description, device_id, start_time, duration
-        ))
-        rule_id = db.commit()
-        return Rule(rule_id, name, description, device_id, start_time, duration)
-
-    def save(self, db: Database) -> Rule:
-        cursor = db.cursor()
-        cursor.execute('''
-            UPDATE "rules"
-            SET "name" = ?,
-                "description" = ?,
-                "device_id" = ?,
-                "start_time" = ?
-                "duration" = ?
-            WHERE "id" = ?
-        ''', (
-            self.name, self.description, self.device_id, self.start_time, self.duration, self.id
-        ))
-        db.commit()
-        return self
-
-    @staticmethod
-    def all(db: Database) -> List[Rule]:
-        cursor = db.cursor()
-        cursor.execute('''
-            SELECT "id", "name", "description", "device_id", "start_time", "duration"
-            FROM "rules"
-        ''')
-
+    def all() -> List[Rule]:
+        cursor = Config.database.execute(FETCH_ALL_SQL)
         return [Rule(*values) for values in cursor.fetchall()]

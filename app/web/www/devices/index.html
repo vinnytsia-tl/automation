@@ -1,20 +1,20 @@
-{% extends 'www/templates/wrapper.html' %}
+{% extends 'templates/wrapper.html' %}
 {% block body %}
 <div class="ui container">
-    {% include "www/templates/menu.html" %}
+    {% include "templates/menu.html" %}
     <div class="ui segment">
         <div class="ui grid">
             <div class="row">
                 <div class="eight wide column">
                     <h2 class="ui header">Пристрої</h2>
                 </div>
+                {% if isAdmin %}
                 <div class="right aligned eight wide column">
-                    <a href="/devices/new">
-                        <button class="ui green button icon">
-                            <i aria-hidden="true" class="calendar plus outline icon"></i>
-                        </button>
+                    <a href="/devices/new" class="ui green button icon">
+                        <i aria-hidden="true" class="calendar plus outline icon"></i>
                     </a>
                 </div>
+                {% endif %}
             </div>
             <div class="row">
                 <div class="column">
@@ -26,7 +26,9 @@
                                 <th>Опис</th>
                                 <th>Тип</th>
                                 <th>Параметри</th>
+                                {% if isAdmin %}
                                 <th class="collapsing"></th>
+                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -35,8 +37,9 @@
                                 <td>{{ dev.id }}</td>
                                 <td>{{ dev.name }}</td>
                                 <td>{{ dev.description }}</td>
-                                <td>{{ dev.type }}</td>
+                                <td>{{ dev.type.name }}</td>
                                 <td>{{ dev.options }}</td>
+                                {% if isAdmin %}
                                 <td>
                                     <div class="ui buttons small">
                                         <button class="ui yellow button icon"><i aria-hidden="true"
@@ -45,6 +48,7 @@
                                                 class="trash alternate outline icon"></i></button>
                                     </div>
                                 </td>
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
