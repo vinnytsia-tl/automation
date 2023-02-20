@@ -36,15 +36,26 @@ class LDAP():
         logger.info('Found %d LDAP entries for search base %s and filter %s', len(entries), search_base, search_filter)
         return [(entry.userPrincipalName.value, entry.displayName.value) for entry in entries]
 
-    # TODO: make a ldap query
     def getuser(self, user_principal_name, search_base=None):
-        users = self.getusers(search_base=search_base)
-        if users is None:
+        if search_base is None:
+            search_base = self.config.user_base
+
+        conn = ldap3.Connection(self.server, user=self.config.bind_user,
+                                password=self.config.bind_password, read_only=True, version=3)
+        if not conn.bind():
+            logger.error('LDAP bind failed with user %s', self.config.bind_user)
             return None
 
-        for (login, name) in users:
-            if login == user_principal_name:
-                return (login, name)
+        search_filter = f'(&(objectCategory=person)(objectClass=user)(userPrincipalName={user_principal_name}))'
+        attrs = ['userPrincipalName', 'displayName']
+        if not conn.search(search_base, search_filter, attributes=attrs):
+            logger.error('No LDAP entries found for search base %s and filter %s', search_base, search_filter)
+            return None
+
+        entry = conn.entries[0]
+        if entry is not None:
+            logger.info('Found LDAP entry for search base %s and filter %s', search_base, search_filter)
+            return (entry.userPrincipalName.value, entry.displayName.value)
 
         logger.warning('No LDAP entry found for user %s in search base %s', user_principal_name, search_base)
         return None
