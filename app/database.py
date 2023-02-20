@@ -35,7 +35,8 @@ class Database():
                     "description"  TEXT    NULL,
                     "device_id"    INT     NOT NULL,
                     "start_time"   INT     NOT NULL,
-                    "duration"     INT     NOT NULL
+                    "duration"     INT     NOT NULL,
+                    FOREIGN KEY(device_id) REFERENCES devices(id)
                 );
             ''')
             cursor.execute('''
@@ -49,8 +50,10 @@ class Database():
         try:
             return self.thread_local.connection
         except AttributeError:
-            self.thread_local.connection = sqlite3.connect(self.db_path)
-            return self.thread_local.connection
+            connection = sqlite3.connect(self.db_path)
+            connection.execute('PRAGMA foreign_keys = ON;')
+            self.thread_local.connection = connection
+            return connection
 
     def execute(self, sql: str, params: tuple = ()) -> sqlite3.Cursor:
         return self.get_connection().execute(sql, params)
