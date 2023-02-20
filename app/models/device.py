@@ -58,5 +58,7 @@ class Device:
 
     @staticmethod
     def find(device_id: int) -> Device:
-        cursor = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (device_id,))
-        return Device(*cursor.fetchone())
+        row = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (device_id,)).fetchone()
+        if row is None:
+            raise ValueError(f'Device with id {device_id} not found')
+        return Device(*row)

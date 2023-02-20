@@ -51,5 +51,7 @@ class Rule:
 
     @staticmethod
     def find(rule_id: int) -> Rule:
-        cursor = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (rule_id,))
-        return Rule(*cursor.fetchone())
+        row = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (rule_id,)).fetchone()
+        if row is None:
+            raise ValueError(f'Rule with id {rule_id} not found')
+        return Rule(*row)

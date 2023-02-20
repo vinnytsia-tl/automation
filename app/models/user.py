@@ -54,7 +54,7 @@ class User:
     def find(login: str) -> User:
         ldap_user = Config.ldap_descriptor.getuser(login)
         if ldap_user is None:
-            return None
+            raise ValueError(f"User with login {login} not found")
 
         login, name = ldap_user
 
