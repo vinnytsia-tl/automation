@@ -7,8 +7,9 @@ from app.config import Config
 
 
 class DeviceType(Enum):
-    GPIO = 1
-    AUDIO = 2
+    GPIOLOWLEVEL = 1
+    GPIOHIGHLEVEL = 2
+    AUDIO = 3
 
     @staticmethod
     def cast(value: int | str | DeviceType | None) -> Optional[DeviceType]:

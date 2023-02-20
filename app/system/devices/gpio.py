@@ -12,12 +12,6 @@ class GPIO(Device):
             self.__write_to_file__(self.INIT_PATH, str(port))
             self.__write_param__('direction', 'out')
 
-    def start(self):
-        self.__write_param__('value', '1')
-
-    def stop(self):
-        self.__write_param__('value', '0')
-
     def __write_param__(self, param, value):
         self.__write_to_file__('{}/{}'.format(self.path, param), value)
 
