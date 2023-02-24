@@ -33,6 +33,7 @@ class Web:
         cherrypy.config.update({
             'server.socket_host': Config.web_listen_host,
             'server.socket_port': Config.web_listen_port,
+            'server.thread_pool': Config.web_thread_pool,
             'engine.autoreload.on': not Config.production,
             'engine.autoreload.frequency': 1,
             'log.screen': not Config.production,
