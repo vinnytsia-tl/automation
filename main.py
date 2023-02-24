@@ -9,7 +9,7 @@ from app.database.migrations import apply_migrations
 def setup_app_logger():
     logger = logging.getLogger('app')
     logger.setLevel(Config.log_level)
-    formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(name)s: %(message)s', datefmt='%d/%b/%Y:%H:%M:%S')
+    formatter = logging.Formatter('[%(asctime)s] #%(thread)d [%(levelname)s] %(name)s: %(message)s', datefmt='%d/%b/%Y:%H:%M:%S')
 
     # create a StreamHandler to log to the console
     console_handler = logging.StreamHandler()
