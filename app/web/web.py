@@ -36,6 +36,7 @@ class Web:
             'engine.autoreload.on': not Config.production,
             'engine.autoreload.frequency': 1,
             'log.screen': not Config.production,
+            'log.screen.level': Config.log_level,
             'log.error_file': Config.log_directory + '/web_error.log',
             'log.access_file': Config.log_directory + '/web_access.log',
         })
