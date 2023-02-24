@@ -1,5 +1,9 @@
 import sqlite3
 import threading
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class Database():
@@ -13,7 +17,9 @@ class Database():
         except AttributeError:
             connection = sqlite3.connect(self.db_path)
             connection.execute('PRAGMA foreign_keys = ON;')
+            connection.set_trace_callback(lambda sql: logger.debug('Executing SQL query: %s', sql))
             self.thread_local.connection = connection
+            logger.debug('Opened new database connection')
             return connection
 
     def execute(self, sql: str, params: tuple = ()) -> sqlite3.Cursor:
@@ -22,3 +28,4 @@ class Database():
     def cleanup(self) -> None:
         with self.get_connection() as connection:
             connection.execute('DELETE FROM sessions;')
+            logger.info('Cleaned up sessions table')
