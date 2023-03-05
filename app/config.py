@@ -25,6 +25,7 @@ class Config:
 
         Config.production = os.getenv('AUTOMATION_ENVIRONMENT') == 'production'
         Config.log_directory = os.getenv('LOG_DIR')
+        Config.log_file = os.getenv('LOG_FILE')
         Config.log_level = os.environ.get('LOG_LEVEL', logging.DEBUG)
         Config.web_listen_host = os.getenv('WEB_LISTEN_HOST')
         Config.web_listen_port = int(os.getenv('WEB_LISTEN_PORT'))

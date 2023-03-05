@@ -9,3 +9,7 @@ class Device(ABC):
     @abstractmethod
     def stop(self):
         pass
+
+    @abstractmethod
+    def destroy(self):
+        pass

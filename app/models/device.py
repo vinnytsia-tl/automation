@@ -2,13 +2,15 @@ from __future__ import annotations
 from enum import Enum
 from dataclasses import dataclass
 from typing import List, Optional
+import yaml
 
 from app.config import Config
+from app.system.devices import GPIOLowLevel, GPIOHighLevel, Device as DeviceHandler
 
 
 class DeviceType(Enum):
-    GPIOLOWLEVEL = 1
-    GPIOHIGHLEVEL = 2
+    GPIO_LOW_LEVEL = 1
+    GPIO_HIGH_LEVEL = 2
     AUDIO = 3
 
     @staticmethod
@@ -51,6 +53,14 @@ class Device:
     def destroy(self):
         with Config.database.get_connection() as db:
             db.execute('DELETE FROM "devices" WHERE "id" = ?', (self.id,))
+
+    def build_handler(self) -> DeviceHandler | None:
+        options = yaml.safe_load(self.options)
+        if self.type == DeviceType.GPIO_LOW_LEVEL:
+            return GPIOLowLevel(**options)
+        if self.type == DeviceType.GPIO_HIGH_LEVEL:
+            return GPIOHighLevel(**options)
+        return None
 
     @staticmethod
     def all() -> List[Device]:

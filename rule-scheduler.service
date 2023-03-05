@@ -1,0 +1,18 @@
+[Unit]
+  Description = Rule Scheduler Service
+  After = network.target
+
+[Service]
+  User = arch-user
+  Group = arch-user
+  WorkingDirectory = /opt/ai/automation
+  Environment = 'LOG_LEVEL=INFO'
+  Environment = 'DATABASE_PATH=sqlite3.db'
+  Environment = 'AUTOMATION_ENVIRONMENT=production'
+  Environment = 'LOG_DIR=logs'
+  Environment = 'LOG_FILE=rule_scheduler.log'
+  ExecStart = '/usr/bin/python3 /opt/ai/automation/rule_scheduler.py'
+  Restart = always
+
+[Install]
+  WantedBy = multi-user.target
