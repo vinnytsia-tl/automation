@@ -6,6 +6,7 @@ import time
 from app.models import Rule
 from .device_handler_pool import DeviceHandlerPool
 
+SECONDS_IN_DAY = 24 * 60 * 60
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +25,7 @@ class RuleScheduler:
     def __schedule_rules(self):
         current_time = time.time()                # wall clock time
         event_loop_time = self.event_loop.time()  # monotonic time
-        midnight = int(current_time) - (int(current_time) % 86400)
+        midnight = int(current_time) - (int(current_time) % SECONDS_IN_DAY)
         offset = event_loop_time - current_time
         logger.info('Scheduling rules (current time: %d, event loop time: %d, midnight: %d, offset: %d)',
                     current_time, event_loop_time, midnight, offset)
@@ -37,8 +38,8 @@ class RuleScheduler:
             logger.info('Scheduling rule %s at %d', rule.name, start_time)
             self.event_loop.call_at(start_time + offset, self.__start_rule, rule)
             self.event_loop.call_at(stop_time + offset, self.__stop_rule, rule)
-        logger.info('Scheduling next rule scheduling at %d', midnight + 86400)
-        self.event_loop.call_at(midnight + 86400 + offset, self.__schedule_rules)
+        logger.info('Scheduling next rule scheduling at %d', midnight + SECONDS_IN_DAY)
+        self.event_loop.call_at(midnight + SECONDS_IN_DAY + offset, self.__schedule_rules)
 
     def __cancel_scheduled_tasks(self):
         logger.info('Canceling scheduled tasks')
