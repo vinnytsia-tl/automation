@@ -5,13 +5,13 @@
 [Service]
   User = arch-user
   Group = arch-user
-  WorkingDirectory = /opt/ai/automation
+  WorkingDirectory = /opt/vtl/automation
   Environment = 'LOG_LEVEL=INFO'
   Environment = 'DATABASE_PATH=sqlite3.db'
   Environment = 'AUTOMATION_ENVIRONMENT=production'
   Environment = 'LOG_DIR=logs'
   Environment = 'LOG_FILE=rule_scheduler.log'
-  ExecStart = '/usr/bin/python3 /opt/ai/automation/rule_scheduler.py'
+  ExecStart = '/usr/bin/env python3 /opt/vtl/automation/rule_scheduler.py'
   Restart = always
 
 [Install]
