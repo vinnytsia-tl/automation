@@ -3,6 +3,7 @@ import logging
 import signal
 import time
 
+from typing import Tuple
 from app.models import Rule
 from .device_handler_pool import DeviceHandlerPool
 
@@ -15,7 +16,7 @@ class RuleScheduler:
         self.device_handler_pool = DeviceHandlerPool()
         self.device_handler_pool.load_devices()
         self.event_loop = asyncio.get_event_loop()
-        self.active_rules = set[Rule]()
+        self.active_rules = set[Tuple[str, int]]()
 
     def run_forever(self):
         self.__schedule_rules()
@@ -36,8 +37,8 @@ class RuleScheduler:
                 logger.info('Skipping rule %s because its stop time is in the past', rule.name)
                 continue
             logger.info('Scheduling rule %s at %d', rule.name, start_time)
-            self.event_loop.call_at(start_time + offset, self.__start_rule, rule)
-            self.event_loop.call_at(stop_time + offset, self.__stop_rule, rule)
+            self.event_loop.call_at(start_time + offset, self.__start_rule, rule.name, rule.device_id)
+            self.event_loop.call_at(stop_time + offset, self.__stop_rule, rule.name, rule.device_id)
         logger.info('Scheduling next rule scheduling at %d', midnight + SECONDS_IN_DAY)
         self.event_loop.call_at(midnight + SECONDS_IN_DAY + offset, self.__schedule_rules)
 
@@ -49,8 +50,8 @@ class RuleScheduler:
 
     def __stop_active_rules(self):
         logger.info('Stopping active rules')
-        for rule in self.active_rules:
-            self.__stop_rule(rule)
+        for (rule_name, device_id) in self.active_rules:
+            self.__stop_rule(rule_name, device_id)
 
     def __register_signal_handlers(self):
         self.event_loop.add_signal_handler(signal.SIGINT, self.__handle_stop_signal)
@@ -72,20 +73,20 @@ class RuleScheduler:
         self.device_handler_pool.load_devices()
         self.__schedule_rules()
 
-    def __start_rule(self, rule: Rule):
-        logger.info('Starting rule %s', rule.name)
-        handler = self.device_handler_pool.get_handler(rule.device_id)
+    def __start_rule(self, rule_name: str, device_id: int):
+        logger.info('Starting rule %s', rule_name)
+        handler = self.device_handler_pool.get_handler(device_id)
         if handler is None:
-            logger.error('No handler for device %d', rule.device_id)
+            logger.error('No handler for device %d', device_id)
         else:
-            self.active_rules.add(rule)
+            self.active_rules.add((rule_name, device_id))
             handler.start()
 
-    def __stop_rule(self, rule: Rule):
-        logger.info('Stopping rule %s', rule.name)
-        handler = self.device_handler_pool.get_handler(rule.device_id)
+    def __stop_rule(self, rule_name: str, device_id: int):
+        logger.info('Stopping rule %s', rule_name)
+        handler = self.device_handler_pool.get_handler(device_id)
         if handler is None:
-            logger.error('No handler for device %d', rule.device_id)
+            logger.error('No handler for device %d', device_id)
         else:
-            self.active_rules.remove(rule)
+            self.active_rules.remove((rule_name, device_id))
             handler.stop()
