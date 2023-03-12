@@ -37,8 +37,8 @@
                                 <td>{{ rule.name }}</td>
                                 <td>{{ rule.description }}</td>
                                 <td>{{ rule.get_device().name }}</td>
-                                <td>{{ rule.start_time }}</td>
-                                <td>{{ rule.duration }}</td>
+                                <td>{{ rule.get_start_time() }}</td>
+                                <td>{{ rule.get_duration() }}</td>
                                 <td>
                                     {% if isModerator %}
                                     <div class="ui buttons small">

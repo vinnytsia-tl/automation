@@ -2,6 +2,7 @@ import cherrypy
 
 from app.web.utils import authenticate, authorize
 from app.models import Rule, UserRole, Device
+from app.models.rule import parse_duration
 from app.config import Config
 
 
@@ -42,6 +43,8 @@ class Rules():
     @authenticate
     @authorize(UserRole.MODERATOR)
     def create(self, name, description, device_id, start_time, duration):
+        start_time = parse_duration(start_time)
+        duration = parse_duration(duration)
         Rule(name=name, description=description, device_id=device_id, start_time=start_time, duration=duration).save()
         raise cherrypy.HTTPRedirect('/rules')
 
@@ -54,8 +57,8 @@ class Rules():
         rule.name = name
         rule.description = description
         rule.device_id = int(device_id)
-        rule.start_time = start_time
-        rule.duration = duration
+        rule.start_time = parse_duration(start_time)
+        rule.duration = parse_duration(duration)
         rule.save()
         raise cherrypy.HTTPRedirect('/rules')
 

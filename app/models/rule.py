@@ -18,6 +18,18 @@ UPDATE_SQL = '''
 FETCH_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration" FROM "rules"'
 
 
+def parse_duration(duration: str) -> int:
+    hours, minutes, seconds = duration.split(':')
+    return int(hours) * 3600 + int(minutes) * 60 + int(seconds)
+
+
+def format_duration(duration: int) -> str:
+    hours = duration // 3600
+    minutes = (duration % 3600) // 60
+    seconds = duration % 60
+    return f'{hours:02d}:{minutes:02d}:{seconds:02d}'
+
+
 @dataclass
 class Rule:
     id: Optional[int] = None
@@ -29,6 +41,12 @@ class Rule:
 
     def get_device(self) -> Device:
         return Device.find(self.device_id)
+
+    def get_start_time(self) -> str:
+        return format_duration(self.start_time)
+
+    def get_duration(self) -> str:
+        return format_duration(self.duration)
 
     def save(self):
         with Config.database.get_connection() as db:

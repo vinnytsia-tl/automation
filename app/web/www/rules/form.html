@@ -18,11 +18,11 @@
     </div>
     <div class="field">
         <label>Час початку</label>
-        <input type="text" name="start_time" value="{{rule.start_time if rule is defined and rule.start_time}}" required>
+        <input type="text" name="start_time" value="{{rule.get_start_time() if rule is defined and rule.start_time}}" required>
     </div>
     <div class="field">
         <label>Протяжність</label>
-        <input type="text" name="duration" value="{{rule.duration if rule is defined and rule.duration}}" required>
+        <input type="text" name="duration" value="{{rule.get_duration() if rule is defined and rule.duration}}" required>
     </div>
     <button class="ui button" type="submit">Створити</button>
 </form>
