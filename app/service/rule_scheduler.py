@@ -57,15 +57,15 @@ class RuleScheduler:
         self.event_loop.add_signal_handler(signal.SIGTERM, self.__handle_stop_signal)
         self.event_loop.add_signal_handler(signal.SIGHUP, self.__handle_restart_signal)
 
-    def __handle_stop_signal(self, signum, _):
-        logger.info('Received signal %d, shutting down...', signum)
+    def __handle_stop_signal(self):
+        logger.info('Received a signal, shutting down...')
         self.event_loop.stop()
         self.__cancel_scheduled_tasks()
         self.__stop_active_rules()
         self.device_handler_pool.reset()
 
-    def __handle_restart_signal(self, signum, _):
-        logger.info('Received signal %d, restarting...', signum)
+    def __handle_restart_signal(self):
+        logger.info('Received a signal, restarting...')
         self.__cancel_scheduled_tasks()
         self.__stop_active_rules()
         self.device_handler_pool.reset()
