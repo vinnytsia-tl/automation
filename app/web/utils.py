@@ -5,7 +5,6 @@ import inspect
 import cherrypy
 
 from app.models import UserRole
-from app.database import Database
 from app.config import Config
 
 
