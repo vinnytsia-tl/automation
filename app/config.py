@@ -29,7 +29,7 @@ class Config:
         Config.log_level = os.environ.get('LOG_LEVEL', logging.DEBUG)
         Config.web_listen_host = os.getenv('WEB_LISTEN_HOST')
         Config.web_listen_port = int(os.getenv('WEB_LISTEN_PORT'))
-        Config.web_thread_pool = int(os.getenv('WEB_THREAD_POOL_SIZE', '1'))
+        Config.web_thread_pool = int(os.getenv('WEB_THREAD_POOL_SIZE', '10'))
         Config.session_max_time = int(os.getenv('SESSION_MAX_TIME'))
         Config.database = Database(os.getenv('DATABASE_PATH'))
         Config.ldap_descriptor = LDAP(LDAPConfig.from_env())
