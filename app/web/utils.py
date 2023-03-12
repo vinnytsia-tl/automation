@@ -39,9 +39,7 @@ def get_current_role():
 
 def authorize(role_or_func: UserRole | Callable):
     if isinstance(role_or_func, UserRole):
-        def wrapper(func: Callable):
-            return __authorize_inner(role_or_func, func)
-        return wrapper
+        return lambda func: __authorize_inner(role_or_func, func)
 
     return __authorize_inner(UserRole.COMMON, role_or_func)
 

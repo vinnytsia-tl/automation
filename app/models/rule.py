@@ -40,13 +40,19 @@ class Rule:
     start_time: Optional[int] = None
     duration: Optional[int] = None
 
-    def get_device(self) -> Device:
+    def get_device(self) -> Device | None:
+        if self.device_id is None:
+            return None
         return Device.find(self.device_id)
 
-    def get_start_time(self) -> str:
+    def get_start_time(self) -> str | None:
+        if self.start_time is None:
+            return None
         return format_duration(self.start_time)
 
-    def get_duration(self) -> str:
+    def get_duration(self) -> str | None:
+        if self.duration is None:
+            return None
         return format_duration(self.duration)
 
     def save(self):

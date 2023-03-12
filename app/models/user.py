@@ -43,9 +43,6 @@ class User:
     @staticmethod
     def all() -> List[User]:
         ldap_users = Config.ldap_descriptor.getusers()
-        if ldap_users is None:
-            return None
-
         cursor = Config.database.execute('SELECT "login", "role" FROM "users"')
         roles = dict(cursor.fetchall())
 

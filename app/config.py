@@ -9,16 +9,16 @@ from app.system.ldap import LDAP, LDAPConfig
 
 
 class Config:
-    production: bool = None
-    log_directory: str = None
-    log_level: str = None
-    web_listen_host: str = None
-    web_listen_port: int = None
-    web_thread_pool: int = None
-    session_max_time: int = None
-    database: Database = None
-    ldap_descriptor: LDAP = None
-    jinja_env: jinja2.Environment = None
+    production: bool
+    log_directory: str
+    log_level: str
+    web_listen_host: str
+    web_listen_port: int
+    web_thread_pool: int
+    session_max_time: int
+    database: Database
+    ldap_descriptor: LDAP
+    jinja_env: jinja2.Environment
 
     @staticmethod
     def load():

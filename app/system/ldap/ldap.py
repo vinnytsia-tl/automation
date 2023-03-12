@@ -12,7 +12,7 @@ class LDAP():
         self.config = config
         self.server = ldap3.Server(config.ldap_server, config.ldap_port, use_ssl=config.ldap_use_ssl)
 
-    def getusers(self, search_base=None):
+    def getusers(self, search_base=None) -> list[tuple[str, str]]:
         if search_base is None:
             search_base = self.config.user_base
 
@@ -20,13 +20,13 @@ class LDAP():
                                 password=self.config.bind_password, read_only=True, version=3)
         if not conn.bind():
             logger.error('LDAP bind failed with user %s', self.config.bind_user)
-            return None
+            raise ValueError('LDAP bind failed')
 
         search_filter = '(&(objectCategory=person)(objectClass=user))'
         attrs = ['userPrincipalName', 'displayName']
         if not conn.search(search_base, search_filter, attributes=attrs):
             logger.error('No LDAP entries found for search base %s and filter %s', search_base, search_filter)
-            return None
+            return []
 
         entries = conn.entries
         logger.info('Found %d LDAP entries for search base %s and filter %s', len(entries), search_base, search_filter)

@@ -58,6 +58,8 @@ class Device:
             db.execute('DELETE FROM "devices" WHERE "id" = ?', (self.id,))
 
     def build_handler(self) -> DeviceHandler | None:
+        if not self.options:
+            return None
         options = yaml.safe_load(self.options)
         if self.type == DeviceType.GPIO_LOW_LEVEL:
             return GPIOLowLevel(**options)
