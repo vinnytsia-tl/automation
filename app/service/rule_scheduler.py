@@ -1,11 +1,12 @@
 import asyncio
+import datetime
 import logging
 import signal
 import time
-import datetime
-
 from typing import Tuple
+
 from app.models import Rule
+
 from .device_handler_pool import DeviceHandlerPool
 
 SECONDS_IN_DAY = 24 * 60 * 60

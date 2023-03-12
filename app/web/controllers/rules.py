@@ -1,9 +1,9 @@
 import cherrypy
 
-from app.web.utils import authenticate, authorize
-from app.models import Rule, UserRole, Device
-from app.models.rule import parse_duration
 from app.config import Config
+from app.models import Device, Rule, UserRole
+from app.models.rule import parse_duration
+from app.web.utils import authenticate, authorize
 
 
 class Rules():

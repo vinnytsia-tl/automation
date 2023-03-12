@@ -1,4 +1,5 @@
 import logging
+
 from . import GPIO
 
 logger = logging.getLogger(__name__)

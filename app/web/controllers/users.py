@@ -1,8 +1,8 @@
 import cherrypy
 
-from app.web.utils import authenticate, authorize
-from app.models import User, UserRole
 from app.config import Config
+from app.models import User, UserRole
+from app.web.utils import authenticate, authorize
 
 
 class Users():

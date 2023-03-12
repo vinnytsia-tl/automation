@@ -1,11 +1,13 @@
 from __future__ import annotations
-from typing import Callable
-import time
+
 import inspect
+import time
+from typing import Callable
+
 import cherrypy
 
-from app.models import UserRole
 from app.config import Config
+from app.models import UserRole
 
 
 def is_authenticated():

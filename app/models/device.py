@@ -1,11 +1,14 @@
 from __future__ import annotations
-from enum import Enum
+
 from dataclasses import dataclass
+from enum import Enum
 from typing import List, Optional
+
 import yaml
 
 from app.config import Config
-from app.system.devices import GPIOLowLevel, GPIOHighLevel, Device as DeviceHandler
+from app.system.devices import Device as DeviceHandler
+from app.system.devices import GPIOHighLevel, GPIOLowLevel
 
 
 class DeviceType(Enum):

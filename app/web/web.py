@@ -1,7 +1,9 @@
 import os
+
 import cherrypy
 
 from app.config import Config
+
 from .controllers import Auth, Devices, Home, Root, Rules, Users
 
 CHERRYPY_CONFIG = {

@@ -1,7 +1,7 @@
 import cherrypy
 
-from app.web.utils import authenticate
 from app.config import Config
+from app.web.utils import authenticate
 
 
 class Home():

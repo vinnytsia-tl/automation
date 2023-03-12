@@ -1,7 +1,8 @@
-import os
-import jinja2
-import dotenv
 import logging
+import os
+
+import dotenv
+import jinja2
 
 from app.database import Database
 from app.system.ldap import LDAP, LDAPConfig

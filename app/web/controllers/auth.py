@@ -1,8 +1,9 @@
 import time
+
 import cherrypy
 
-from app.web.utils import is_authenticated, authenticate
 from app.config import Config
+from app.web.utils import authenticate, is_authenticated
 
 
 class Auth():

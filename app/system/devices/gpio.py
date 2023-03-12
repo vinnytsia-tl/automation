@@ -1,5 +1,6 @@
 import logging
 from os import path
+
 from . import Device
 
 logger = logging.getLogger(__name__)
