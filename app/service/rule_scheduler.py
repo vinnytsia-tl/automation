@@ -2,6 +2,7 @@ import asyncio
 import logging
 import signal
 import time
+import datetime
 
 from typing import Tuple
 from app.models import Rule
@@ -24,10 +25,10 @@ class RuleScheduler:
         self.event_loop.run_forever()
 
     def __schedule_rules(self):
-        current_time = time.time()                # wall clock time
+        current_time = time.time()                # wall clock time, utc
         event_loop_time = self.event_loop.time()  # monotonic time
-        midnight = int(current_time) - (int(current_time) % SECONDS_IN_DAY)
         offset = event_loop_time - current_time
+        midnight = datetime.datetime.combine(datetime.date.today(), datetime.time.min).timestamp()
         logger.info('Scheduling rules (current time: %d, event loop time: %d, midnight: %d, offset: %d)',
                     current_time, event_loop_time, midnight, offset)
         for rule in Rule.all():
