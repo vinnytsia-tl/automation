@@ -11,8 +11,8 @@
         <label>Тип</label>
         <select class="ui fluid dropdown" name="kind" required>
             <option value="">Тип</option>
-            <option {{ 'selected' if device is defined and device.type.value == 1 }} value="GPIOLOWLEVEL">GPIOLowLevel</option>
-            <option {{ 'selected' if device is defined and device.type.value == 2 }} value="GPIOHIGHLEVEL">GPIOHighLevel</option>
+            <option {{ 'selected' if device is defined and device.type.value == 1 }} value="GPIO_LOW_LEVEL">GPIOLowLevel</option>
+            <option {{ 'selected' if device is defined and device.type.value == 2 }} value="GPIO_HIGH_LEVEL">GPIOHighLevel</option>
             <option {{ 'selected' if device is defined and device.type.value == 3 }} value="AUDIO">AUDIO</option>
         </select>
     </div>
