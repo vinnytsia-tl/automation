@@ -1,0 +1,6 @@
+flake8
+pytest
+pytest-mypy
+types-ldap3
+types-PyYAML
+pytest-isort

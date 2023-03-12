@@ -1,0 +1,25 @@
+stages:
+  - test
+
+mypy:
+  stage: test
+  image: python:3.10
+  script:
+    - pip install -r requirements.txt
+    - pip install -r requirements.dev.txt
+    - py.test --mypy
+
+isort:
+  stage: test
+  image: python:3.10
+  script:
+    - pip install -r requirements.txt
+    - pip install -r requirements.dev.txt
+    - py.test --isort
+
+flake8:
+  stage: test
+  image: python:3.10
+  script:
+    - pip install -r requirements.dev.txt
+    - flake8
