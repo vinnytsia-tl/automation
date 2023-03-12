@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from os import getenv
 
 
-@dataclass
+@dataclass(kw_only=True)
 class LDAPConfig:
     ldap_server: str
     ldap_port: int
