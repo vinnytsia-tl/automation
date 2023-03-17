@@ -1,6 +1,7 @@
 [Unit]
   Description = Rule Scheduler Service
   After = network.target
+  After = automation.service
 
 [Service]
   User = root
