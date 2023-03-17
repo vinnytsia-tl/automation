@@ -1,0 +1,14 @@
+[Unit]
+  Description = Automation Service
+  After = network.target
+
+[Service]
+  User = user
+  Group = user
+  WorkingDirectory = /opt/vtl/automation
+  Environment = 'LOG_FILE=web.log'
+  ExecStart = /usr/bin/env python3.10 /opt/vtl/automation/main.py
+  Restart = always
+
+[Install]
+  WantedBy = multi-user.target
