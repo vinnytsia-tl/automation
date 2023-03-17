@@ -22,7 +22,7 @@ class Config:
 
     @staticmethod
     def load():
-        dotenv.load_dotenv()
+        dotenv.load_dotenv(override=False)
 
         Config.production = os.getenv('AUTOMATION_ENVIRONMENT') == 'production'
         Config.log_directory = os.getenv('LOG_DIR')
