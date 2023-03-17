@@ -3,8 +3,8 @@
   After = network.target
 
 [Service]
-  User = arch-user
-  Group = arch-user
+  User = root
+  Group = root
   WorkingDirectory = /opt/vtl/automation
   Environment = 'LOG_LEVEL=INFO'
   Environment = 'DATABASE_PATH=sqlite3.db'
