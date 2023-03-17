@@ -1,3 +1,4 @@
+import logging
 import os
 
 import cherrypy
@@ -5,6 +6,8 @@ import cherrypy
 from app.config import Config
 
 from .controllers import Auth, Devices, Home, Root, Rules, Users
+
+logger = logging.getLogger(__name__)
 
 CHERRYPY_CONFIG = {
     '/': {
@@ -25,12 +28,17 @@ CHERRYPY_CONFIG = {
 class Web:
     @staticmethod
     def start():
+        logger.info('Starting web server...')
+
         app = Root()
         app.auth = Auth()
         app.home = Home()
         app.devices = Devices()
         app.rules = Rules()
         app.users = Users()
+
+        logger.debug("Loaded app with auth=%s, home=%s, devices=%s, rules=%s, users=%s",
+                     app.auth, app.home, app.devices, app.rules, app.users)
 
         cherrypy.config.update({
             'server.socket_host': Config.web_listen_host,
@@ -43,18 +51,24 @@ class Web:
             'log.error_file': Config.log_directory + '/web_error.log',
             'log.access_file': Config.log_directory + '/web_access.log',
         })
+        logger.debug('Web server config updated.')
 
         if Config.production:
             CHERRYPY_CONFIG['/']['tools.sessions.secure'] = True
 
         cherrypy.engine.subscribe('start', Config.database.cleanup)
+        logger.debug('Web engine subscribed.')
         cherrypy.tree.mount(app, '/', CHERRYPY_CONFIG)
+        logger.debug('Web tree mounted.')
         cherrypy.engine.start()
+        logger.info('Web server started.')
         cherrypy.engine.block()
 
     @staticmethod
     @cherrypy.tools.register('before_finalize', priority=60)
     def secureheaders():
+        logger.debug('Execute secureheaders hook')
+
         headers = cherrypy.response.headers
         headers['X-Frame-Options'] = 'DENY'
         headers['X-XSS-Protection'] = '1; mode=block'
