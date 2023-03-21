@@ -15,6 +15,7 @@ class GPIO(Device):
         if not path.exists(self.path):
             self.__write_to_file__(self.INIT_PATH, str(port))
             self.__write_param__('direction', 'out')
+        self.stop()
         logger.info('GPIO initialized for port %s', port)
 
     def __write_param__(self, param, value):
