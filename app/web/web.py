@@ -37,8 +37,7 @@ class Web:
         app.rules = Rules()
         app.users = Users()
 
-        logger.debug("Loaded app with auth=%s, home=%s, devices=%s, rules=%s, users=%s",
-                     app.auth, app.home, app.devices, app.rules, app.users)
+        logger.debug("Created app controlers")
 
         cherrypy.config.update({
             'server.socket_host': Config.web_listen_host,
