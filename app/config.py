@@ -15,6 +15,9 @@ class Config:
     web_listen_host: str
     web_listen_port: int
     web_thread_pool: int
+    web_ssl_certificate: str
+    web_ssl_private_key: str
+    web_ssl_certificate_chain: str
     session_max_time: int
     database: Database
     ldap_descriptor: LDAP
@@ -31,6 +34,9 @@ class Config:
         Config.web_listen_host = os.getenv('WEB_LISTEN_HOST')
         Config.web_listen_port = int(os.getenv('WEB_LISTEN_PORT'))
         Config.web_thread_pool = int(os.getenv('WEB_THREAD_POOL_SIZE', '10'))
+        Config.web_ssl_certificate = os.getenv('WEB_SSL_CERTIFICATE')
+        Config.web_ssl_private_key = os.getenv('WEB_SSL_PRIVATE_KEY')
+        Config.web_ssl_certificate_chain = os.getenv('WEB_SSL_CERTIFICATE_CHAIN')
         Config.session_max_time = int(os.getenv('SESSION_MAX_TIME'))
         Config.database = Database(os.getenv('DATABASE_PATH'))
         Config.ldap_descriptor = LDAP(LDAPConfig.from_env())

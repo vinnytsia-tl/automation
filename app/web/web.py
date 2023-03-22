@@ -54,6 +54,10 @@ class Web:
 
         if Config.production:
             CHERRYPY_CONFIG['/']['tools.sessions.secure'] = True
+            cherrypy.server.ssl_module = 'builtin'
+            cherrypy.server.ssl_certificate = Config.web_ssl_certificate
+            cherrypy.server.ssl_private_key = Config.web_ssl_private_key
+            cherrypy.server.ssl_certificate_chain = Config.web_ssl_certificate_chain
 
         cherrypy.engine.subscribe('start', Config.database.cleanup)
         logger.debug('Web engine subscribed.')
