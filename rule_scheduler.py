@@ -7,7 +7,7 @@ if sys.version_info < (3, 10):
 
 from app.config import Config
 from app.logging import setup_app_logger
-from app.service import RuleScheduler
+from app.service import RuleScheduler, ensure_ntp_sync
 
 # pylint: enable=wrong-import-position
 
@@ -15,4 +15,5 @@ from app.service import RuleScheduler
 if __name__ == '__main__':
     Config.load()
     setup_app_logger()
+    ensure_ntp_sync()
     RuleScheduler().run_forever()
