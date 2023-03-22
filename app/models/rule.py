@@ -17,6 +17,11 @@ UPDATE_SQL = '''
     WHERE "id" = ?
 '''
 FETCH_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration" FROM "rules"'
+FETCH_SQL_START_ORDER = '''
+    SELECT "id", "name", "description", "device_id", "start_time", "duration"
+    FROM "rules"
+    ORDER BY "start_time" ASC
+'''
 
 
 def parse_duration(duration: str) -> int:
@@ -72,6 +77,11 @@ class Rule:
     @staticmethod
     def all() -> List[Rule]:
         cursor = Config.database.execute(FETCH_SQL)
+        return [Rule(*values) for values in cursor.fetchall()]
+
+    @staticmethod
+    def all_start_order() -> List[Rule]:
+        cursor = Config.database.execute(FETCH_SQL_START_ORDER)
         return [Rule(*values) for values in cursor.fetchall()]
 
     @staticmethod

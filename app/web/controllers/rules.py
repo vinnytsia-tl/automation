@@ -17,7 +17,7 @@ class Rules():
     @authenticate
     @authorize
     def index(self, current_role: UserRole):
-        rules = Rule.all()
+        rules = Rule.all_start_order()
         params = {'rules': rules, 'isModerator': current_role.value >= UserRole.MODERATOR.value}
         return self.index_template.render(params)
 
