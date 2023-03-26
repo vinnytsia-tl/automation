@@ -58,7 +58,7 @@ class RuleScheduler:
 
     def __stop_active_rules(self):
         logger.info('Stopping active rules')
-        for (rule_name, device_id) in self.active_rules:
+        for (rule_name, device_id) in self.active_rules.copy():
             self.__stop_rule(rule_name, device_id)
 
     def __register_signal_handlers(self):
