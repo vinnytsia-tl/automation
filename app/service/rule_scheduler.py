@@ -26,15 +26,21 @@ class RuleScheduler:
         self.event_loop.run_forever()
 
     def __schedule_rules(self):
-        current_time = time.time()                # wall clock time, utc
-        event_loop_time = self.event_loop.time()  # monotonic time
+        current_time = time.time()                     # wall clock time, utc
+        event_loop_time = self.event_loop.time()       # monotonic time
+        weekday_int = datetime.date.today().weekday()  # Monday is 0 and Sunday is 6
+        weekday_mask = 1 << weekday_int                # Monday is 1 and Sunday is 64
         offset = event_loop_time - current_time
         midnight = datetime.datetime.combine(datetime.date.today(), datetime.time.min).timestamp()
-        logger.info('Scheduling rules (current time: %d, event loop time: %d, midnight: %d, offset: %d)',
-                    current_time, event_loop_time, midnight, offset)
+        logger.info('Scheduling rules (current time: %d, event loop time: %d, '
+                    'midnight: %d, offset: %d, weekday: %d, weekday mask: %d)',
+                    current_time, event_loop_time, midnight, offset, weekday_int, weekday_mask)
         for rule in Rule.all():
             start_time = midnight + rule.start_time
             stop_time = start_time + rule.duration
+            if rule.days_of_week & weekday_mask != weekday_mask:
+                logger.info('Skipping rule %s because today is not in its days of week', rule.name)
+                continue
             if stop_time < current_time:
                 logger.info('Skipping rule %s because its stop time is in the past', rule.name)
                 continue

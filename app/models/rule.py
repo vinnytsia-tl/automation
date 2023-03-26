@@ -1,27 +1,75 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Flag, auto
 from typing import List, Optional
 
 from app.config import Config
 from app.models import Device
 
-INSERT_SQL = 'INSERT INTO "rules" ("name", "description", "device_id", "start_time", "duration") VALUES (?, ?, ?, ?, ?)'
+INSERT_SQL = '''
+    INSERT INTO "rules" (
+        "name",
+        "description",
+        "device_id",
+        "start_time",
+        "duration",
+        "days_of_week"
+    ) VALUES (?, ?, ?, ?, ?, ?)
+'''
 UPDATE_SQL = '''
     UPDATE "rules"
     SET "name" = ?,
         "description" = ?,
         "device_id" = ?,
         "start_time" = ?,
-        "duration" = ?
+        "duration" = ?,
+        "days_of_week" = ?
     WHERE "id" = ?
 '''
-FETCH_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration" FROM "rules"'
+
+FETCH_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration", "days_of_week" FROM "rules"'
 FETCH_SQL_START_ORDER = '''
-    SELECT "id", "name", "description", "device_id", "start_time", "duration"
+    SELECT "id", "name", "description", "device_id", "start_time", "duration", "days_of_week"
     FROM "rules"
     ORDER BY "start_time" ASC
 '''
+
+
+class DayOfWeek(Flag):
+    MONDAY = auto()
+    TUESDAY = auto()
+    WEDNESDAY = auto()
+    THURSDAY = auto()
+    FRIDAY = auto()
+    SATURDAY = auto()
+    SUNDAY = auto()
+
+    @staticmethod
+    def cast(value: int | str | DayOfWeek | None) -> Optional[DayOfWeek]:
+        if value is None:
+            return None
+        if isinstance(value, DayOfWeek):
+            return value
+        if isinstance(value, int):
+            return DayOfWeek(value)
+        if isinstance(value, str):
+            return DayOfWeek[value]
+        raise TypeError(f"Cannot cast {value} to DayOfWeek")
+
+    def to_ukrainian(self):
+        uk_names = {
+            DayOfWeek.MONDAY: 'Понеділок',
+            DayOfWeek.TUESDAY: 'Вівторок',
+            DayOfWeek.WEDNESDAY: 'Середа',
+            DayOfWeek.THURSDAY: 'Четвер',
+            DayOfWeek.FRIDAY: 'П\'ятниця',
+            DayOfWeek.SATURDAY: 'Субота',
+            DayOfWeek.SUNDAY: 'Неділя'
+        }
+
+        names = [uk_names[day] for day in DayOfWeek if day in self]
+        return ', '.join(names)
 
 
 def parse_duration(duration: str) -> int:
@@ -44,6 +92,10 @@ class Rule:
     device_id: Optional[int] = None
     start_time: Optional[int] = None
     duration: Optional[int] = None
+    days_of_week: Optional[DayOfWeek] = None
+
+    def __post_init__(self):
+        self.days_of_week = DayOfWeek.cast(self.days_of_week)
 
     def get_device(self) -> Device | None:
         if self.device_id is None:
@@ -64,11 +116,13 @@ class Rule:
         with Config.database.get_connection() as db:
             if self.id is None:
                 cursor = db.execute(INSERT_SQL, (self.name, self.description,
-                                    self.device_id, self.start_time, self.duration))
+                                                 self.device_id, self.start_time, self.duration,
+                                                 self.days_of_week.value))
                 self.id = cursor.lastrowid
             else:
                 db.execute(UPDATE_SQL, (self.name, self.description,
-                                        self.device_id, self.start_time, self.duration, self.id))
+                                        self.device_id, self.start_time, self.duration,
+                                        self.days_of_week.value, self.id))
 
     def destroy(self):
         with Config.database.get_connection() as db:

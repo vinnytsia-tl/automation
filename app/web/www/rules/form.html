@@ -24,5 +24,16 @@
         <label>Протяжність</label>
         <input type="text" name="duration" value="{{rule.get_duration() if rule is defined and rule.duration}}" required>
     </div>
+    <div class="inline fields">
+        <label>Дні тижня</label>
+        {% for day in DayOfWeek %}
+            <div class="field">
+                <div class="ui checkbox">
+                    <input type="checkbox" name="days_of_week" value="{{day.value}}" {{ 'checked' if rule is defined and day in rule.days_of_week }}>
+                    <label>{{day.to_ukrainian()}}</label>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
     <button class="ui button" type="submit">Створити</button>
 </form>

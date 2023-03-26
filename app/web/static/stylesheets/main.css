@@ -18,3 +18,8 @@ html {
     padding-top: 5em;
     padding-bottom: 5em;
 }
+
+.vertical-text {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+}

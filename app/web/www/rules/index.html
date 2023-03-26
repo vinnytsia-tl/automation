@@ -27,6 +27,9 @@
                                 <th>Пристрій</th>
                                 <th>Початок</th>
                                 <th>Протяжність</th>
+                                {% for day in DayOfWeek %}
+                                    <th><span class="vertical-text">{{day.to_ukrainian()}}</span></th>
+                                {% endfor %}
                                 <th class="collapsing"></th>
                             </tr>
                         </thead>
@@ -39,6 +42,11 @@
                                 <td>{{ rule.get_device().name }}</td>
                                 <td>{{ rule.get_start_time() }}</td>
                                 <td>{{ rule.get_duration() }}</td>
+                                {% for day in DayOfWeek %}
+                                    <td class="center aligned">
+                                        <i class="{{ 'check' if day in rule.days_of_week }} square outline icon"></i>
+                                    </td>
+                                {% endfor %}
                                 <td>
                                     {% if isModerator %}
                                     <div class="ui buttons small">
