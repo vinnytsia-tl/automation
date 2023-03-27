@@ -1,0 +1,18 @@
+{% extends 'templates/wrapper.html' %}
+{% block body %}
+<div class="ui container">
+    {% include "templates/menu.html" %}
+    <div class="ui top attached {{ color }} segment">
+        <h2 class="ui header">Rule Scheduler</h2>
+        <p>State: {{ state }}</p>
+        <p>PID: {{ pid }}</p>
+    </div>
+    <div class="ui bottom attached segment">
+        <div class="ui fluid buttons">
+            {% for action in actions %}
+                <a class="ui button" href="/rule_scheduler/perform?action={{ action }}">{{ action }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

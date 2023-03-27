@@ -5,7 +5,7 @@ import cherrypy
 
 from app.config import Config
 
-from .controllers import Auth, Devices, Home, Root, Rules, Users
+from .controllers import Auth, Devices, Home, Root, Rules, Users, RuleScheduler
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +36,7 @@ class Web:
         app.devices = Devices()
         app.rules = Rules()
         app.users = Users()
+        app.rule_scheduler = RuleScheduler()
 
         logger.debug("Created app controlers")
 
