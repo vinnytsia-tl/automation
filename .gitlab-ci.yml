@@ -5,6 +5,7 @@ mypy:
   stage: test
   image: python:3.10
   script:
+    - apt-get update && apt-get install -y libsystemd-dev
     - pip install -r requirements.txt
     - pip install -r requirements.dev.txt
     - py.test --mypy
@@ -13,6 +14,7 @@ isort:
   stage: test
   image: python:3.10
   script:
+    - apt-get update && apt-get install -y libsystemd-dev
     - pip install -r requirements.txt
     - pip install -r requirements.dev.txt
     - py.test --isort
