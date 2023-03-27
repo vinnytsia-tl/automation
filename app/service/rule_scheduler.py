@@ -38,7 +38,7 @@ class RuleScheduler:
         for rule in Rule.all():
             start_time = midnight + rule.start_time
             stop_time = start_time + rule.duration
-            if rule.days_of_week & weekday_mask != weekday_mask:
+            if rule.days_of_week.value & weekday_mask != weekday_mask:
                 logger.info('Skipping rule %s because today is not in its days of week', rule.name)
                 continue
             if stop_time < current_time:
