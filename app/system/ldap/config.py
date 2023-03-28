@@ -23,7 +23,7 @@ class LDAPConfig:
         if ldap_port is None:
             raise ValueError("LDAP_PORT is not set")
 
-        ldap_use_ssl = getenv("LDAP_USE_SSL")
+        ldap_use_ssl = getenv("LDAP_USE_SSL") == 'True'
         if ldap_use_ssl is None:
             raise ValueError("LDAP_USE_SSL is not set")
 
