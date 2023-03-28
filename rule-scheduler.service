@@ -9,6 +9,7 @@
   WorkingDirectory = /opt/vtl/automation
   Environment = 'LOG_FILE=rule_scheduler.log'
   ExecStart = /usr/bin/env python3.10 /opt/vtl/automation/rule_scheduler.py
+  ExecReload = /bin/kill -HUP $MAINPID
   Restart = always
 
 [Install]
