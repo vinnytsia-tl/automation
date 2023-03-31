@@ -7,6 +7,7 @@ from typing import List, Optional
 import yaml
 
 from app.config import Config
+from app.system.devices import Audio
 from app.system.devices import Device as DeviceHandler
 from app.system.devices import GPIOHighLevel, GPIOLowLevel
 
@@ -65,6 +66,8 @@ class Device:
             return GPIOLowLevel(**options)
         if self.type == DeviceType.GPIO_HIGH_LEVEL:
             return GPIOHighLevel(**options)
+        if self.type == DeviceType.AUDIO:
+            return Audio(**options)
         return None
 
     @staticmethod
