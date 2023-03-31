@@ -5,7 +5,7 @@ import cherrypy
 
 from app.config import Config
 
-from .controllers import Auth, Devices, Home, Root, Rules, Users, RuleScheduler
+from .controllers import Auth, Devices, Home, Root, Rules, RuleScheduler, Users
 
 logger = logging.getLogger(__name__)
 
