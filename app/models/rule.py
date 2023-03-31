@@ -54,7 +54,7 @@ class DayOfWeek(Flag):
         if isinstance(value, int):
             return DayOfWeek(value)
         if isinstance(value, str):
-            return DayOfWeek[value]
+            return DayOfWeek(int(value))
         raise TypeError(f"Cannot cast {value} to DayOfWeek")
 
     def to_ukrainian(self):

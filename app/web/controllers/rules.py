@@ -45,7 +45,8 @@ class Rules():
     def create(self, name, description, device_id, start_time, duration, days_of_week):
         start_time = parse_duration(start_time)
         duration = parse_duration(duration)
-        days_of_week = sum(map(int, days_of_week))
+        if isinstance(days_of_week, list):
+            days_of_week = sum(map(int, days_of_week))
         Rule(name=name, description=description, device_id=device_id,
              start_time=start_time, duration=duration, days_of_week=days_of_week).save()
         raise cherrypy.HTTPRedirect('/rules')
@@ -61,7 +62,10 @@ class Rules():
         rule.device_id = int(device_id)
         rule.start_time = parse_duration(start_time)
         rule.duration = parse_duration(duration)
-        rule.days_of_week = DayOfWeek.cast(sum(map(int, days_of_week)))
+        if isinstance(days_of_week, str):
+            rule.days_of_week = DayOfWeek.cast(days_of_week)
+        else:
+            rule.days_of_week = DayOfWeek.cast(sum(map(int, days_of_week)))
         rule.save()
         raise cherrypy.HTTPRedirect('/rules')
 
