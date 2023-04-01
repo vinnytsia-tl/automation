@@ -27,19 +27,19 @@ UPDATE_SQL = '''
         "days_of_week" = ?
     WHERE "id" = ?
 '''
-
-FETCH_SQL = 'SELECT "id", "name", "description", "device_id", "start_time", "duration", "days_of_week" FROM "rules"'
-FETCH_SQL_ENABLED = '''
-    SELECT "rules"."id", "rules"."name", "rules"."description", "rules"."device_id",
-    "rules"."start_time", "rules"."duration", "rules"."days_of_week"
+FETCH_SQL = '''
+    SELECT
+        "rules"."id",
+        "rules"."name",
+        "rules"."description",
+        "rules"."device_id",
+        "rules"."start_time",
+        "rules"."duration",
+        "rules"."days_of_week"
     FROM "rules"
-    INNER JOIN "devices" ON "rules"."device_id" = "devices"."id" AND "devices"."disabled" = 0
 '''
-FETCH_SQL_START_ORDER = '''
-    SELECT "id", "name", "description", "device_id", "start_time", "duration", "days_of_week"
-    FROM "rules"
-    ORDER BY "start_time" ASC
-'''
+FETCH_SQL_ENABLED = f'{FETCH_SQL} INNER JOIN "devices" ON "rules"."device_id" = "devices"."id" AND "devices"."disabled" = 0'
+FETCH_SQL_START_ORDER = f'{FETCH_SQL} ORDER BY "start_time" ASC'
 
 
 class DayOfWeek(Flag):
