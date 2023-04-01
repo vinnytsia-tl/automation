@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD "disabled" BOOLEAN NOT NULL DEFAULT FALSE;

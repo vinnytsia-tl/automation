@@ -20,5 +20,12 @@
         <label>Параметри</label>
         <input type="text" name="options" value="{{device.options if device is defined and device.options}}">
     </div>
+    <div class="inline field">
+        <div class="ui checkbox">
+            <input type="checkbox" name="disabled" value="1" tabindex="0" class="hidden"
+                {{ 'checked' if device is defined and device.disabled }}>
+            <label>Вимкнено</label>
+        </div>
+    </div>
     <button class="ui button" type="submit">Зберегти</button>
 </form>

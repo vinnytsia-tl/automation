@@ -28,11 +28,11 @@ class DeviceType(Enum):
         return DeviceType[value]
 
 
-INSERT_SQL = 'INSERT INTO "devices" ("name", "description", "type", "options") VALUES (?, ?, ?, ?)'
-UPDATE_SQL = 'UPDATE "devices" SET "name" = ?, "description" = ?, "type" = ?, "options" = ? WHERE "id" = ?'
+INSERT_SQL = 'INSERT INTO "devices" ("name", "description", "type", "options", "disabled") VALUES (?, ?, ?, ?, ?)'
+UPDATE_SQL = 'UPDATE "devices" SET "name" = ?, "description" = ?, "type" = ?, "options" = ?, "disabled" = ? WHERE "id" = ?'
 FETCH_SQL = '''
     SELECT
-        "id", "name", "description", "type", "options",
+        "id", "name", "description", "type", "options", "disabled",
         EXISTS(SELECT 1 FROM "rules" WHERE "device_id" = "devices"."id")
     FROM "devices"
 '''
@@ -45,19 +45,22 @@ class Device:
     description: Optional[str] = None
     type: Optional[DeviceType] = None
     options: Optional[str] = None
+    disabled: bool = False
     rules_exist: bool = False
 
     def __post_init__(self):
         self.type = DeviceType.cast(self.type)
+        self.disabled = bool(self.disabled)  # sqlite3 returns 0 or 1
+        self.rules_exist = bool(self.rules_exist)  # sqlite3 returns 0 or 1
 
     def save(self):
         with Config.database.get_connection() as db:
             type_value = self.type.value if self.type is not None else None
             if self.id is None:
-                cursor = db.execute(INSERT_SQL, (self.name, self.description, type_value, self.options))
+                cursor = db.execute(INSERT_SQL, (self.name, self.description, type_value, self.options, self.disabled))
                 self.id = cursor.lastrowid
             else:
-                db.execute(UPDATE_SQL, (self.name, self.description, type_value, self.options, self.id))
+                db.execute(UPDATE_SQL, (self.name, self.description, type_value, self.options, self.disabled, self.id))
 
     def destroy(self):
         with Config.database.get_connection() as db:
