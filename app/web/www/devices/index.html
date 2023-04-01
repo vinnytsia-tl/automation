@@ -34,7 +34,7 @@
                         </thead>
                         <tbody>
                             {% for dev in devices %}
-                            <tr>
+                            <tr class="{{ 'error' if dev.disabled }}">
                                 <td>{{ dev.id }}</td>
                                 <td>{{ dev.name }}</td>
                                 <td>{{ dev.description }}</td>
