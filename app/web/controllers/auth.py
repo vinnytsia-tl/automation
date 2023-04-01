@@ -18,7 +18,7 @@ class Auth():
         return self.template.render()
 
     @cherrypy.expose
-    def login(self, username, password):
+    def login(self, username: str, password: str):
         if is_authenticated():
             raise cherrypy.HTTPRedirect("/home")
 

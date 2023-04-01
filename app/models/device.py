@@ -25,9 +25,7 @@ class DeviceType(Enum):
             return value
         if isinstance(value, int):
             return DeviceType(value)
-        if isinstance(value, str):
-            return DeviceType[value]
-        raise TypeError(f"Cannot cast {value} to DeviceType")
+        return DeviceType[value]
 
 
 INSERT_SQL = 'INSERT INTO "devices" ("name", "description", "type", "options") VALUES (?, ?, ?, ?)'
@@ -54,11 +52,12 @@ class Device:
 
     def save(self):
         with Config.database.get_connection() as db:
+            type_value = self.type.value if self.type is not None else None
             if self.id is None:
-                cursor = db.execute(INSERT_SQL, (self.name, self.description, self.type.value, self.options))
+                cursor = db.execute(INSERT_SQL, (self.name, self.description, type_value, self.options))
                 self.id = cursor.lastrowid
             else:
-                db.execute(UPDATE_SQL, (self.name, self.description, self.type.value, self.options, self.id))
+                db.execute(UPDATE_SQL, (self.name, self.description, type_value, self.options, self.id))
 
     def destroy(self):
         with Config.database.get_connection() as db:

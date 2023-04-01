@@ -5,7 +5,7 @@ import cherrypy
 
 from app.config import Config
 
-from .controllers import Auth, Devices, Home, Root, Rules, RuleScheduler, Users
+from .controllers import Root
 
 logger = logging.getLogger(__name__)
 
@@ -30,16 +30,6 @@ class Web:
     def start():
         logger.info('Starting web server...')
 
-        app = Root()
-        app.auth = Auth()
-        app.home = Home()
-        app.devices = Devices()
-        app.rules = Rules()
-        app.users = Users()
-        app.rule_scheduler = RuleScheduler()
-
-        logger.debug("Created app controlers")
-
         cherrypy.config.update({
             'server.socket_host': Config.web_listen_host,
             'server.socket_port': Config.web_listen_port,
@@ -58,7 +48,7 @@ class Web:
 
         cherrypy.engine.subscribe('start', Config.database.cleanup)
         logger.debug('Web engine subscribed.')
-        cherrypy.tree.mount(app, '/', CHERRYPY_CONFIG)
+        cherrypy.tree.mount(Root(), '/', CHERRYPY_CONFIG)
         logger.debug('Web tree mounted.')
         cherrypy.engine.start()
         logger.info('Web server started.')

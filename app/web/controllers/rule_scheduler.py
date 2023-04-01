@@ -36,20 +36,22 @@ class RuleScheduler():
     @authenticate
     @authorize(UserRole.ADMIN)
     def index(self):
-        with Unit(SERVICE_NAME) as unit:
-            color = 'green' if unit.Unit.ActiveState == b'active' else 'red'
-            return self.template.render({'color': color,
-                                         'state': unit.Unit.ActiveState.decode(),
-                                         'pid': unit.Service.MainPID,
-                                         'actions': ACTIONS.keys()})
+        unit = Unit(SERVICE_NAME)
+        unit.load()
+        color = 'green' if unit.Unit.ActiveState == b'active' else 'red'
+        return self.template.render({'color': color,
+                                     'state': unit.Unit.ActiveState.decode(),
+                                     'pid': unit.Service.MainPID,
+                                     'actions': ACTIONS.keys()})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def perform(self, action):
+    def perform(self, action: str):
         if action not in ACTIONS:
             raise cherrypy.HTTPError(400, 'Invalid action')
-        with Unit(SERVICE_NAME) as unit:
-            getattr(unit.Unit, action)(*ACTIONS[action])
+        unit = Unit(SERVICE_NAME)
+        unit.load()
+        getattr(unit.Unit, action)(*ACTIONS[action])
         raise cherrypy.HTTPRedirect('/rule_scheduler')

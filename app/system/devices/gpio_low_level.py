@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 class GPIOLowLevel(GPIO):
-    def __init__(self, port):
+    def __init__(self, port: int):
         GPIO.__init__(self, port)
 
     def start(self):

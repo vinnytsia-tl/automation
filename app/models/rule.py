@@ -53,9 +53,7 @@ class DayOfWeek(Flag):
             return value
         if isinstance(value, int):
             return DayOfWeek(value)
-        if isinstance(value, str):
-            return DayOfWeek(int(value))
-        raise TypeError(f"Cannot cast {value} to DayOfWeek")
+        return DayOfWeek(int(value))
 
     def to_ukrainian(self):
         uk_names = {
@@ -121,15 +119,16 @@ class Rule:
 
     def save(self):
         with Config.database.get_connection() as db:
+            dow_value = self.days_of_week.value if self.days_of_week is not None else None
             if self.id is None:
                 cursor = db.execute(INSERT_SQL, (self.name, self.description,
                                                  self.device_id, self.start_time, self.duration,
-                                                 self.days_of_week.value))
+                                                 dow_value))
                 self.id = cursor.lastrowid
             else:
                 db.execute(UPDATE_SQL, (self.name, self.description,
                                         self.device_id, self.start_time, self.duration,
-                                        self.days_of_week.value, self.id))
+                                        dow_value, self.id))
 
     def destroy(self):
         with Config.database.get_connection() as db:

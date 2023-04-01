@@ -31,24 +31,25 @@ class Devices():
     @cherrypy.tools.allow(methods=['GET'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def edit(self, device_id: int):
-        device = Device.find(device_id)
+    def edit(self, device_id: str):
+        device = Device.find(int(device_id))
         return self.edit_template.render({'device': device})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def create(self, name, description, kind, options):
-        Device(name=name, description=description, type=kind, options=options).save()
+    def create(self, name: str, description: str, kind: str, options: str):
+        device_type = DeviceType.cast(kind)
+        Device(name=name, description=description, type=device_type, options=options).save()
         raise cherrypy.HTTPRedirect("/devices")
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def update(self, device_id, name, description, kind, options):
-        device = Device.find(device_id)
+    def update(self, device_id: str, name: str, description: str, kind: str, options: str):
+        device = Device.find(int(device_id))
         device.name = name
         device.description = description
         device.type = DeviceType.cast(kind)
@@ -60,6 +61,6 @@ class Devices():
     @cherrypy.tools.allow(methods=['GET'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def destroy(self, device_id):
-        Device.find(device_id).destroy()
+    def destroy(self, device_id: str):
+        Device.find(int(device_id)).destroy()
         raise cherrypy.HTTPRedirect("/devices")

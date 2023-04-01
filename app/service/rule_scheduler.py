@@ -3,7 +3,6 @@ import datetime
 import logging
 import signal
 import time
-from typing import Tuple
 
 from app.models import Rule
 
@@ -18,7 +17,7 @@ class RuleScheduler:
         self.device_handler_pool = DeviceHandlerPool()
         self.device_handler_pool.load_devices()
         self.event_loop = asyncio.get_event_loop()
-        self.active_rules = set[Tuple[str, int]]()
+        self.active_rules = set[tuple[str, int]]()
 
     def run_forever(self):
         self.__schedule_rules()
@@ -36,6 +35,9 @@ class RuleScheduler:
                     'midnight: %d, offset: %d, weekday: %d, weekday mask: %d)',
                     current_time, event_loop_time, midnight, offset, weekday_int, weekday_mask)
         for rule in Rule.all():
+            if rule.start_time is None or rule.days_of_week is None or rule.duration is None:
+                logger.warning('Skipping rule %s because it is not fully configured', rule.name or rule.id)
+                continue
             start_time = midnight + rule.start_time
             stop_time = start_time + rule.duration
             if rule.days_of_week.value & weekday_mask != weekday_mask:

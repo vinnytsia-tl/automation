@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 import ldap3
 
@@ -12,7 +13,7 @@ class LDAP():
         self.config = config
         self.server = ldap3.Server(config.ldap_server, config.ldap_port, use_ssl=config.ldap_use_ssl)
 
-    def getusers(self, search_base=None) -> list[tuple[str, str]]:
+    def getusers(self, search_base: Optional[str] = None) -> list[tuple[str, str]]:
         if search_base is None:
             search_base = self.config.user_base
 
@@ -32,7 +33,7 @@ class LDAP():
         logger.info('Found %d LDAP entries for search base %s and filter %s', len(entries), search_base, search_filter)
         return [(entry.userPrincipalName.value, entry.displayName.value) for entry in entries]
 
-    def getuser(self, user_principal_name, search_base=None):
+    def getuser(self, user_principal_name: str, search_base: Optional[str] = None) -> Optional[tuple[str, str]]:
         if search_base is None:
             search_base = self.config.user_base
 
@@ -56,7 +57,7 @@ class LDAP():
         logger.warning('No LDAP entry found for user %s in search base %s', user_principal_name, search_base)
         return None
 
-    def login(self, username, password):
+    def login(self, username: str, password: str) -> bool:
         conn = ldap3.Connection(self.server, user=username, password=password)
         if not conn.bind():
             logger.warning("LDAP bind failed with user %s", username)

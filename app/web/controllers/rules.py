@@ -33,8 +33,8 @@ class Rules():
     @cherrypy.tools.allow(methods=['GET'])
     @authenticate
     @authorize(UserRole.MODERATOR)
-    def edit(self, rule_id: int):
-        rule = Rule.find(rule_id)
+    def edit(self, rule_id: str):
+        rule = Rule.find(int(rule_id))
         devices = Device.all()
         return self.edit_template.render({'rule': rule, 'devices': devices, 'DayOfWeek': DayOfWeek})
 
@@ -42,21 +42,25 @@ class Rules():
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.MODERATOR)
-    def create(self, name, description, device_id, start_time, duration, days_of_week):
-        start_time = parse_duration(start_time)
-        duration = parse_duration(duration)
-        if isinstance(days_of_week, list):
-            days_of_week = sum(map(int, days_of_week))
-        Rule(name=name, description=description, device_id=device_id,
-             start_time=start_time, duration=duration, days_of_week=days_of_week).save()
+    def create(self, name: str, description: str, device_id: str, start_time: str, duration: str,
+               days_of_week: str | list[str]):
+        rule = Rule(name=name, description=description, device_id=int(device_id))
+        rule.start_time = parse_duration(start_time)
+        rule.duration = parse_duration(duration)
+        if isinstance(days_of_week, str):
+            rule.days_of_week = DayOfWeek.cast(days_of_week)
+        else:
+            rule.days_of_week = DayOfWeek.cast(sum(map(int, days_of_week)))
+        rule.save()
         raise cherrypy.HTTPRedirect('/rules')
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.MODERATOR)
-    def update(self, rule_id, name, description, device_id, start_time, duration, days_of_week):
-        rule = Rule.find(rule_id)
+    def update(self, rule_id: str, name: str, description: str, device_id: str, start_time: str, duration: str,
+               days_of_week: str):
+        rule = Rule.find(int(rule_id))
         rule.name = name
         rule.description = description
         rule.device_id = int(device_id)
@@ -73,6 +77,6 @@ class Rules():
     @cherrypy.tools.allow(methods=['GET'])
     @authenticate
     @authorize(UserRole.MODERATOR)
-    def destroy(self, rule_id: int):
-        Rule.find(rule_id).destroy()
+    def destroy(self, rule_id: str):
+        Rule.find(int(rule_id)).destroy()
         raise cherrypy.HTTPRedirect('/rules')

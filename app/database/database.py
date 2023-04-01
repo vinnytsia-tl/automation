@@ -1,6 +1,7 @@
 import logging
 import sqlite3
 import threading
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +22,7 @@ class Database():
             logger.debug('Opened new database connection')
             return connection
 
-    def execute(self, sql: str, params: tuple = ()) -> sqlite3.Cursor:
+    def execute(self, sql: str, params: tuple[Any, ...] = ()) -> sqlite3.Cursor:
         return self.get_connection().execute(sql, params)
 
     def cleanup(self) -> None:

@@ -14,12 +14,12 @@ class DeviceHandlerPool:
         for device in Device.all():
             logger.info('Loading device %s (%d)', device.name, device.id)
             handler = device.build_handler()
-            if handler is None:
+            if handler is None or device.id is None:
                 logger.error('Cannot load device %s', device.name)
             else:
                 self.pool[device.id] = handler
 
-    def get_handler(self, device_id):
+    def get_handler(self, device_id: int):
         return self.pool.get(device_id)
 
     def reset(self):

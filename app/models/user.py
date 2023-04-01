@@ -20,25 +20,24 @@ class UserRole(Enum):
             return value
         if isinstance(value, int):
             return UserRole(value)
-        if isinstance(value, str):
-            return UserRole[value]
-        raise TypeError(f"Cannot cast {value} to UserRole")
+        return UserRole[value]
 
 
 @dataclass
 class User:
-    login: str
-    name: str
-    role: UserRole
+    login: Optional[str] = None
+    name: Optional[str] = None
+    role: Optional[UserRole] = None
 
     def __post_init__(self):
         self.role = UserRole.cast(self.role)
 
     def save(self) -> None:
         with Config.database.get_connection() as db:
-            cursor = db.execute('UPDATE "users" SET "role" = ? WHERE "login" = ?', (self.role.value, self.login))
+            role_value = self.role.value if self.role is not None else None
+            cursor = db.execute('UPDATE "users" SET "role" = ? WHERE "login" = ?', (role_value, self.login))
             if cursor.rowcount == 0:
-                cursor.execute('INSERT INTO "users" ("login", "role") VALUES (?, ?)', (self.login, self.role.value))
+                cursor.execute('INSERT INTO "users" ("login", "role") VALUES (?, ?)', (self.login, role_value))
 
     @staticmethod
     def all() -> List[User]:
