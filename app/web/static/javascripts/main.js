@@ -1,1 +1,4 @@
-$(function () { $('.ui.dropdown').dropdown(); })
+$(function () {
+    $('.ui.dropdown').dropdown();
+    $('.ui.checkbox').checkbox();
+})

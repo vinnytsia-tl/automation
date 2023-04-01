@@ -29,7 +29,8 @@
         {% for day in DayOfWeek %}
             <div class="field">
                 <div class="ui checkbox">
-                    <input type="checkbox" name="days_of_week" value="{{day.value}}" {{ 'checked' if rule is defined and day in rule.days_of_week }}>
+                    <input type="checkbox" name="days_of_week" value="{{day.value}}" tabindex="0" class="hidden"
+                        {{ 'checked' if rule is defined and day in rule.days_of_week }}>
                     <label>{{day.to_ukrainian()}}</label>
                 </div>
             </div>
