@@ -80,7 +80,7 @@ class Device:
 
     @staticmethod
     def all() -> List[Device]:
-        cursor = Config.database.execute(FETCH_SQL)
+        cursor = Config.database.execute(f'{FETCH_SQL} ORDER BY "disabled" ASC, "name" ASC')
         return [Device(*values) for values in cursor.fetchall()]
 
     @staticmethod
