@@ -9,8 +9,9 @@ from app.config import Config
 
 class UserRole(Enum):
     COMMON = 0
-    MODERATOR = 1
-    ADMIN = 2
+    RUNNER = 1
+    MODERATOR = 2
+    ADMIN = 3
 
     @staticmethod
     def cast(value: int | str | UserRole | None) -> Optional[UserRole]:
