@@ -34,7 +34,7 @@ class RuleScheduler:
         logger.info('Scheduling rules (current time: %d, event loop time: %d, '
                     'midnight: %d, offset: %d, weekday: %d, weekday mask: %d)',
                     current_time, event_loop_time, midnight, offset, weekday_int, weekday_mask)
-        for rule in Rule.all():
+        for rule in Rule.enabled():
             if rule.start_time is None or rule.days_of_week is None or rule.duration is None:
                 logger.warning('Skipping rule %s because it is not fully configured', rule.name or rule.id)
                 continue
