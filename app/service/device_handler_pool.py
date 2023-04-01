@@ -11,7 +11,7 @@ class DeviceHandlerPool:
         self.pool = dict[int, DeviceHandler]()
 
     def load_devices(self):
-        for device in Device.all():
+        for device in Device.enabled():
             logger.info('Loading device %s (%d)', device.name, device.id)
             handler = device.build_handler()
             if handler is None or device.id is None:

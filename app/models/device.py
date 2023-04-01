@@ -84,6 +84,11 @@ class Device:
         return [Device(*values) for values in cursor.fetchall()]
 
     @staticmethod
+    def enabled() -> List[Device]:
+        cursor = Config.database.execute(f'{FETCH_SQL} WHERE "disabled" = 0')
+        return [Device(*values) for values in cursor.fetchall()]
+
+    @staticmethod
     def find(device_id: int) -> Device:
         row = Config.database.execute(f'{FETCH_SQL} WHERE "id" = ?', (device_id,)).fetchone()
         if row is None:
