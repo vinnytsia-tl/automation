@@ -41,16 +41,22 @@
                                 <td>{{ dev.type.name }}</td>
                                 <td>{{ dev.options }}</td>
                                 {% if isAdmin %}
-                                <td>
-                                    <div class="ui buttons small">
-                                        <a href="/devices/edit?device_id={{ dev.id }}" class="ui yellow button icon">
-                                            <i aria-hidden="true" class="edit icon"></i>
-                                        </a>
-                                        <a href="/devices/destroy?device_id={{ dev.id }}" class="ui red button icon">
-                                            <i aria-hidden="true" class="trash alternate outline icon"></i>
-                                        </a>
-                                    </div>
-                                </td>
+                                    <td>
+                                        <div class="ui buttons small">
+                                            <a href="/devices/edit?device_id={{ dev.id }}" class="ui yellow button icon">
+                                                <i aria-hidden="true" class="edit icon"></i>
+                                            </a>
+                                            {% if dev.rules_exist %}
+                                                <div class="ui disabled red button icon" data-tooltip="Неможливо видалити пристрій, який використовується в правилах">
+                                                    <i aria-hidden="true" class="trash alternate outline icon"></i>
+                                                </div>
+                                            {% else %}
+                                                <a href="/devices/destroy?device_id={{ dev.id }}" class="ui red button icon">
+                                                    <i aria-hidden="true" class="trash alternate outline icon"></i>
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </td>
                                 {% endif %}
                             </tr>
                             {% endfor %}

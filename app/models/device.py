@@ -32,7 +32,12 @@ class DeviceType(Enum):
 
 INSERT_SQL = 'INSERT INTO "devices" ("name", "description", "type", "options") VALUES (?, ?, ?, ?)'
 UPDATE_SQL = 'UPDATE "devices" SET "name" = ?, "description" = ?, "type" = ?, "options" = ? WHERE "id" = ?'
-FETCH_SQL = 'SELECT "id", "name", "description", "type", "options" FROM "devices"'
+FETCH_SQL = '''
+    SELECT
+        "id", "name", "description", "type", "options",
+        EXISTS(SELECT 1 FROM "rules" WHERE "device_id" = "devices"."id")
+    FROM "devices"
+'''
 
 
 @dataclass
@@ -42,6 +47,7 @@ class Device:
     description: Optional[str] = None
     type: Optional[DeviceType] = None
     options: Optional[str] = None
+    rules_exist: bool = False
 
     def __post_init__(self):
         self.type = DeviceType.cast(self.type)
