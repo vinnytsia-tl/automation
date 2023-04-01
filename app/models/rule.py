@@ -112,6 +112,13 @@ class Rule:
             return None
         return format_duration(self.duration)
 
+    def get_end_time(self) -> str | None:
+        if self.start_time is None:
+            return None
+        if self.duration is None:
+            return None
+        return format_duration(self.start_time + self.duration)
+
     def save(self):
         with Config.database.get_connection() as db:
             if self.id is None:
