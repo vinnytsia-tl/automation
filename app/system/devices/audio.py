@@ -9,17 +9,16 @@ logger = logging.getLogger(__name__)
 
 class Audio(Device):
     def __init__(self, file: str):
-        self.file = file
         mixer.init()
+        self.sound = mixer.Sound(file)
         logger.info('Audio initialized for file %s', file)
 
     def start(self):
-        mixer.music.load(self.file)
-        mixer.music.play()
+        self.sound.play()
 
     def stop(self):
-        mixer.music.stop()
-        mixer.music.unload()
+        self.sound.stop()
 
     def destroy(self):
+        del self.sound
         mixer.quit()
