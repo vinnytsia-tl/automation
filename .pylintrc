@@ -3,7 +3,7 @@ jobs=0
 good-names=db,id,f
 
 [MESSAGES CONTROL]
-disable=missing-docstring,too-few-public-methods
+disable=missing-docstring,too-few-public-methods,too-many-instance-attributes
 
 [REPORTS]
 output-format=colorized

@@ -27,7 +27,8 @@ class Devices():
     @authenticate
     @authorize(UserRole.ADMIN)
     def new(self):
-        return self.new_template.render()
+        devices = Device.enabled()
+        return self.new_template.render({'devices': devices})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -35,28 +36,39 @@ class Devices():
     @authorize(UserRole.ADMIN)
     def edit(self, device_id: str):
         device = Device.find(int(device_id))
-        return self.edit_template.render({'device': device})
+        devices = filter(lambda d: d.id != device.id, Device.enabled())
+        return self.edit_template.render({'device': device, 'devices': devices})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def create(self, name: str, description: str, kind: str, options: str, disabled: Optional[str] = None):
+    def create(self, name: str, description: str, kind: str, options: str, dependent_device_id: str,
+               dependent_start_delay: str, dependent_stop_delay: str, disabled: Optional[str] = None):
         device_type = DeviceType.cast(kind)
-        Device(name=name, description=description, type=device_type, options=options, disabled=disabled == '1').save()
+        dependent_device_id_value = None if dependent_device_id == '' else int(dependent_device_id)
+        dependent_start_delay_value = None if dependent_start_delay == '' else int(dependent_start_delay)
+        dependent_stop_delay_value = None if dependent_stop_delay == '' else int(dependent_stop_delay)
+        Device(name=name, description=description, type=device_type, options=options, disabled=disabled == '1',
+               dependent_device_id=dependent_device_id_value, dependent_start_delay=dependent_start_delay_value,
+               dependent_stop_delay=dependent_stop_delay_value).save()
         raise cherrypy.HTTPRedirect("/devices")
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     @authenticate
     @authorize(UserRole.ADMIN)
-    def update(self, device_id: str, name: str, description: str, kind: str, options: str, disabled: Optional[str] = None):
+    def update(self, device_id: str, name: str, description: str, kind: str, options: str, dependent_device_id: str,
+               dependent_start_delay: str, dependent_stop_delay: str, disabled: Optional[str] = None):
         device = Device.find(int(device_id))
         device.name = name
         device.description = description
         device.type = DeviceType.cast(kind)
         device.options = options
         device.disabled = disabled == '1'
+        device.dependent_device_id = None if dependent_device_id == '' else int(dependent_device_id)
+        device.dependent_start_delay = None if dependent_start_delay == '' else int(dependent_start_delay)
+        device.dependent_stop_delay = None if dependent_stop_delay == '' else int(dependent_stop_delay)
         device.save()
         raise cherrypy.HTTPRedirect("/devices")
 

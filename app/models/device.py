@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, Any
 
 import yaml
 
@@ -28,14 +28,12 @@ class DeviceType(Enum):
         return DeviceType[value]
 
 
-INSERT_SQL = 'INSERT INTO "devices" ("name", "description", "type", "options", "disabled") VALUES (?, ?, ?, ?, ?)'
-UPDATE_SQL = 'UPDATE "devices" SET "name" = ?, "description" = ?, "type" = ?, "options" = ?, "disabled" = ? WHERE "id" = ?'
-FETCH_SQL = '''
-    SELECT
-        "id", "name", "description", "type", "options", "disabled",
-        EXISTS(SELECT 1 FROM "rules" WHERE "device_id" = "devices"."id")
-    FROM "devices"
-'''
+ATTRIBUTES = ["name", "description", "type", "options", "disabled",
+              "dependent_device_id", "dependent_start_delay", "dependent_stop_delay"]
+INSERT_SQL = f'INSERT INTO "devices" ({",".join(ATTRIBUTES)}) VALUES ({",".join(["?"] * len(ATTRIBUTES))})'
+UPDATE_SQL = f'UPDATE "devices" SET {",".join([f"{attr} = ?" for attr in ATTRIBUTES])} WHERE "id" = ?'
+RULES_EXIST_SQL = 'EXISTS(SELECT 1 FROM "rules" WHERE "device_id" = "devices"."id")'
+FETCH_SQL = f'SELECT "id", {",".join(ATTRIBUTES)}, {RULES_EXIST_SQL} FROM "devices"'
 
 
 @dataclass
@@ -46,6 +44,9 @@ class Device:
     type: Optional[DeviceType] = None
     options: Optional[str] = None
     disabled: bool = False
+    dependent_device_id: Optional[int] = None
+    dependent_start_delay: Optional[int] = None
+    dependent_stop_delay: Optional[int] = None
     rules_exist: bool = False
 
     def __post_init__(self):
@@ -53,14 +54,18 @@ class Device:
         self.disabled = bool(self.disabled)  # sqlite3 returns 0 or 1
         self.rules_exist = bool(self.rules_exist)  # sqlite3 returns 0 or 1
 
+    def __attribute_before_type_cast(self, attribute: str) -> Any:
+        if attribute == 'type':
+            return self.type.value if self.type is not None else None
+        return getattr(self, attribute)
+
     def save(self):
         with Config.database.get_connection() as db:
-            type_value = self.type.value if self.type is not None else None
             if self.id is None:
-                cursor = db.execute(INSERT_SQL, (self.name, self.description, type_value, self.options, self.disabled))
+                cursor = db.execute(INSERT_SQL, [self.__attribute_before_type_cast(attr) for attr in ATTRIBUTES])
                 self.id = cursor.lastrowid
             else:
-                db.execute(UPDATE_SQL, (self.name, self.description, type_value, self.options, self.disabled, self.id))
+                db.execute(UPDATE_SQL, [self.__attribute_before_type_cast(attr) for attr in ATTRIBUTES] + [self.id])
 
     def destroy(self):
         with Config.database.get_connection() as db:

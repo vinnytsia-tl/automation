@@ -20,6 +20,23 @@
         <label>Параметри</label>
         <input type="text" name="options" value="{{device.options if device is defined and device.options}}">
     </div>
+    <div class="field">
+        <label>Залежний пристрій</label>
+        <select class="ui fluid dropdown" name="dependent_device_id">
+            <option value="">-</option>
+            {% for dev in devices %}
+                <option {{ 'selected' if device is defined and device.dependent_device_id == dev.id }} value="{{ dev.id }}">{{ dev.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field">
+        <label>Випередження запуску залежного пристрою, секунди</label>
+        <input type="number" name="dependent_start_delay" value="{{device.dependent_start_delay if device is defined and device.dependent_start_delay}}">
+    </div>
+    <div class="field">
+        <label>Затримка зупинки залежного пристрою, секунди</label>
+        <input type="number" name="dependent_stop_delay" value="{{device.dependent_stop_delay if device is defined and device.dependent_stop_delay}}">
+    </div>
     <div class="inline field">
         <div class="ui checkbox">
             <input type="checkbox" name="disabled" value="1" tabindex="0" class="hidden"
