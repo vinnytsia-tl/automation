@@ -18,6 +18,9 @@ class GPIO(Device):
         self.stop()
         logger.info('GPIO initialized for port %s', port)
 
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} {self.path}>'
+
     def __write_param__(self, param: str, value: str):
         self.__write_to_file__(f'{self.path}/{param}', value)
 

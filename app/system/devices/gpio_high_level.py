@@ -10,12 +10,9 @@ class GPIOHighLevel(GPIO):
         GPIO.__init__(self, port)
 
     def start(self):
-        logger.info('Starting GPIOHighLevel %s', self.path)
+        super().start()
         self.__write_param__('value', '1')
 
-    def stop(self):
-        logger.info('Stopping GPIOHighLevel %s', self.path)
+    def stop(self, force: bool = False):
+        super().stop()
         self.__write_param__('value', '0')
-
-    def destroy(self):
-        logger.info('Destroying GPIOHighLevel %s', self.path)
