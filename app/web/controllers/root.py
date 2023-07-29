@@ -22,7 +22,7 @@ class Root():
         self.rules = Rules()
         self.users = Users()
         self.rule_scheduler = RuleScheduler()
-        logger.debug("Created app controlers")
+        logger.debug("Created app controllers")
 
     @cherrypy.expose
     def index(self):
