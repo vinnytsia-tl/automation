@@ -5,9 +5,9 @@ if sys.version_info < (3, 10):
 
 # pylint: disable=wrong-import-position
 
-from app.config import Config
 from app.common.database.migrations import apply_migrations
 from app.common.web import Web
+from app.config import Config
 
 # pylint: enable=wrong-import-position
 

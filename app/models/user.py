@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional
 
-from app.config import Config
 from app.common.ldap import User as LDAPUser
+from app.config import Config
 
 
 class UserRole(Enum):
