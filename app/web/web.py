@@ -1,5 +1,4 @@
 import logging
-import os
 
 import cherrypy
 
@@ -9,20 +8,27 @@ from .controllers import Root
 
 logger = logging.getLogger(__name__)
 
-CHERRYPY_CONFIG = {
-    '/': {
-        'tools.secureheaders.on': True,
-        'tools.sessions.on': True,
-        'tools.sessions.httponly': True,
-        'tools.staticdir.root': os.path.abspath(os.getcwd()) + '/app/web',
-        'tools.trailing_slash.on': False,
-        'tools.response_headers.on': True,
-    },
-    '/static': {
-        'tools.staticdir.on': True,
-        'tools.staticdir.dir': './static',
-    },
-}
+
+def get_cherrypy_config():
+    return {
+        '/': {
+            'tools.secureheaders.on': True,
+            'tools.sessions.on': True,
+            'tools.sessions.httponly': True,
+            'tools.staticdir.root': Config.web_static_dir_root_path,
+            'tools.trailing_slash.on': False,
+            'tools.response_headers.on': True,
+            'tools.sessions.secure': Config.production,
+        },
+        '/static': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': './static',
+        },
+        '/.well-known': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': './static/.well-known',
+        },
+    }
 
 
 class Web:
@@ -43,12 +49,9 @@ class Web:
         })
         logger.debug('Web server config updated.')
 
-        if Config.production:
-            CHERRYPY_CONFIG['/']['tools.sessions.secure'] = True
-
         cherrypy.engine.subscribe('start', Config.database.cleanup)
         logger.debug('Web engine subscribed.')
-        cherrypy.tree.mount(Root(), '/', CHERRYPY_CONFIG)
+        cherrypy.tree.mount(Root(), '/', get_cherrypy_config())
         logger.debug('Web tree mounted.')
         cherrypy.engine.start()
         logger.info('Web server started.')

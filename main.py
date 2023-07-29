@@ -6,8 +6,7 @@ if sys.version_info < (3, 10):
 # pylint: disable=wrong-import-position
 
 from app.config import Config
-from app.database.migrations import apply_migrations
-from app.logging import setup_app_logger
+from app.common.database.migrations import apply_migrations
 from app.web import Web
 
 # pylint: enable=wrong-import-position
@@ -15,6 +14,6 @@ from app.web import Web
 
 if __name__ == '__main__':
     Config.load()
-    setup_app_logger()
+    Config.setup_app_logger()
     apply_migrations()
     Web.start()

@@ -5,6 +5,7 @@ from enum import Enum
 from typing import List, Optional
 
 from app.config import Config
+from app.common.ldap import User as LDAPUser
 
 
 class UserRole(Enum):
@@ -42,22 +43,20 @@ class User:
 
     @staticmethod
     def all() -> List[User]:
-        ldap_users = Config.ldap_descriptor.getusers()
+        ldap_users = Config.ldap_descriptor.get_users()
         cursor = Config.database.execute('SELECT "login", "role" FROM "users"')
-        roles = dict(cursor.fetchall())
-
-        return [User(login=login, name=name, role=UserRole(roles.get(login, 0))) for (login, name) in ldap_users]
+        roles = dict[str, int](cursor.fetchall())
+        return [User.from_ldap(lu, roles.get(lu.user_principal_name, 0)) for lu in ldap_users]
 
     @staticmethod
     def find(login: str) -> User:
-        ldap_user = Config.ldap_descriptor.getuser(login)
-        if ldap_user is None:
-            raise ValueError(f"User with login {login} not found")
-
-        login, name = ldap_user
-
-        cursor = Config.database.execute('SELECT "role" FROM "users" WHERE "login" = ?', (login,))
+        ldap_user = Config.ldap_descriptor.get_user(login)
+        cursor = Config.database.execute('SELECT "role" FROM "users" WHERE "login" = ?', (ldap_user.user_principal_name,))
         row = cursor.fetchone()
-        role = UserRole.COMMON if row is None else UserRole(row[0])
+        return User.from_ldap(ldap_user, 0 if row is None else row[0])
 
-        return User(login=login, name=name, role=role)
+    @staticmethod
+    def from_ldap(ldap_user: LDAPUser, role: int) -> User:
+        return User(login=ldap_user.user_principal_name,
+                    name=ldap_user.display_name,
+                    role=UserRole(role))
