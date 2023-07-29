@@ -2,7 +2,7 @@ import logging
 
 import cherrypy
 
-from app.web.utils import is_authenticated
+from app.common.web.utils import is_authenticated
 
 from .auth import Auth
 from .devices import Devices

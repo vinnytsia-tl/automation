@@ -7,7 +7,7 @@ if sys.version_info < (3, 10):
 
 from app.config import Config
 from app.common.database.migrations import apply_migrations
-from app.web import Web
+from app.common.web import Web
 
 # pylint: enable=wrong-import-position
 
