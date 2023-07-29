@@ -2,7 +2,6 @@ import cherrypy
 
 from app.config import Config
 from app.models import User, UserRole
-from app.web.utils import authenticate, authorize
 
 
 class Users():
@@ -11,17 +10,18 @@ class Users():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize
-    def index(self, current_role: UserRole):
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize()
+    def index(self):
+        current_role = UserRole(cherrypy.session['current_role'])
         users = User.all()
         params = {'users': users, 'showForm': current_role.value >= UserRole.ADMIN.value}
         return self.index_template.render(params)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def update(self, login: str, role: str):
         user = User.find(login)
         user.role = UserRole(int(role))

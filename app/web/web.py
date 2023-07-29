@@ -4,7 +4,7 @@ import cherrypy
 
 from app.config import Config
 
-from .controllers import Root
+from .utils import init_hooks
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,9 @@ def get_cherrypy_config():
 class Web:
     @staticmethod
     def start():
+        init_hooks()
+        from .controllers import Root  # pylint: disable=import-outside-toplevel # hooks must be initialized first
+
         logger.info('Starting web server...')
 
         cherrypy.config.update({

@@ -4,7 +4,6 @@ import cherrypy
 
 from app.config import Config
 from app.models import Device, DeviceType, UserRole
-from app.web.utils import authenticate, authorize
 
 
 class Devices():
@@ -15,25 +14,26 @@ class Devices():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize
-    def index(self, current_role: UserRole):
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize()
+    def index(self):
+        current_role = UserRole(cherrypy.session['current_role'])
         devices = Device.all()
         params = {'devices': devices, 'isAdmin': current_role.value >= UserRole.ADMIN.value}
         return self.index_template.render(params)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def new(self):
         devices = Device.enabled()
         return self.new_template.render({'devices': devices})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def edit(self, device_id: str):
         device = Device.find(int(device_id))
         devices = filter(lambda d: d.id != device.id, Device.enabled())
@@ -41,8 +41,8 @@ class Devices():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def create(self, name: str, description: str, kind: str, options: str, dependent_device_id: str,
                dependent_start_delay: str, dependent_stop_delay: str, disabled: Optional[str] = None):
         device_type = DeviceType.cast(kind)
@@ -56,8 +56,8 @@ class Devices():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def update(self, device_id: str, name: str, description: str, kind: str, options: str, dependent_device_id: str,
                dependent_start_delay: str, dependent_stop_delay: str, disabled: Optional[str] = None):
         device = Device.find(int(device_id))
@@ -74,8 +74,8 @@ class Devices():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def destroy(self, device_id: str):
         Device.find(int(device_id)).destroy()
         raise cherrypy.HTTPRedirect("/devices")

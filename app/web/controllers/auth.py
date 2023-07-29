@@ -3,7 +3,7 @@ import time
 import cherrypy
 
 from app.config import Config
-from app.web.utils import authenticate, is_authenticated
+from app.web.utils import is_authenticated
 
 
 class Auth():
@@ -38,10 +38,11 @@ class Auth():
         raise cherrypy.HTTPRedirect("/home")
 
     @cherrypy.expose
-    @authenticate
+    @cherrypy.tools.authenticate()
     def logout(self):
         with Config.database.get_connection() as connection:
             connection.execute('DELETE FROM sessions WHERE session_id = ?;', (cherrypy.session.id,))
 
         cherrypy.session['username'] = None
+        cherrypy.session['current_role'] = None
         raise cherrypy.HTTPRedirect("/auth")

@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import inspect
 import time
-from typing import Callable
+import logging
 
 import cherrypy
 
 from app.config import Config
 from app.models import UserRole
+
+logger = logging.getLogger(__name__)
 
 
 def is_authenticated():
@@ -18,13 +19,10 @@ def is_authenticated():
     return cursor.fetchone() is not None
 
 
-def authenticate(func: Callable):
-    def wrapper(*args, **kwargs):
-        if not is_authenticated():
-            raise cherrypy.HTTPRedirect("/auth")
-        return func(*args, **kwargs)
-
-    return wrapper
+def authenticate():
+    if not is_authenticated():
+        logger.debug('User is not authenticated, redirecting to /auth')
+        raise cherrypy.HTTPRedirect("/auth")
 
 
 def get_current_role():
@@ -37,22 +35,14 @@ def get_current_role():
     return UserRole(res[0])
 
 
-def authorize(role_or_func: UserRole | Callable):
-    if isinstance(role_or_func, UserRole):
-        return lambda func: __authorize_inner(role_or_func, func)
+def authorize(role: UserRole = UserRole.COMMON):
+    current_role = get_current_role()
+    if current_role.value < role.value:
+        logger.debug('User is not authorized (role is %s, required %s), redirecting to /home', current_role, role)
+        raise cherrypy.HTTPRedirect("/home")
+    cherrypy.session['current_role'] = current_role
 
-    return __authorize_inner(UserRole.COMMON, role_or_func)
 
-
-def __authorize_inner(role: UserRole, func: Callable):
-    add_current_role = 'current_role' in inspect.getfullargspec(func).args
-
-    def wrapper(*args, **kwargs):
-        current_role = get_current_role()
-        if current_role.value < role.value:
-            raise cherrypy.HTTPRedirect("/home")
-        if add_current_role:
-            kwargs['current_role'] = current_role
-        return func(*args, **kwargs)
-
-    return wrapper
+def init_hooks():
+    cherrypy.tools.authenticate = cherrypy.Tool('before_handler', authenticate)
+    cherrypy.tools.authorize = cherrypy.Tool('before_handler', authorize)

@@ -1,7 +1,6 @@
 import cherrypy
 
 from app.config import Config
-from app.web.utils import authenticate
 
 
 class Home():
@@ -9,6 +8,6 @@ class Home():
         self.template = Config.jinja_env.get_template('home/index.html')
 
     @cherrypy.expose
-    @authenticate
+    @cherrypy.tools.authenticate()
     def index(self):
         return self.template.render()

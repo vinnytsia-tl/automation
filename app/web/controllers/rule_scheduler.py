@@ -3,7 +3,6 @@ from pystemd.systemd1 import Unit
 
 from app.config import Config
 from app.models import UserRole
-from app.web.utils import authenticate, authorize
 
 SERVICE_NAME = b'rule-scheduler.service'
 
@@ -33,8 +32,8 @@ class RuleScheduler():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def index(self):
         unit = Unit(SERVICE_NAME)
         unit.load()
@@ -46,8 +45,8 @@ class RuleScheduler():
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    @authenticate
-    @authorize(UserRole.ADMIN)
+    @cherrypy.tools.authenticate()
+    @cherrypy.tools.authorize(role=UserRole.ADMIN)
     def perform(self, action: str):
         if action not in ACTIONS:
             raise cherrypy.HTTPError(400, 'Invalid action')
