@@ -16,4 +16,9 @@ if __name__ == '__main__':
     Config.load()
     Config.setup_app_logger()
     apply_migrations()
-    Web.start()
+
+    if sys.argv[1:] == ['shell']:
+        import code
+        code.interact(local=locals())
+    else:
+        Web.start()
