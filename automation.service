@@ -7,7 +7,7 @@
   Group = user
   WorkingDirectory = /opt/vtl/automation
   Environment = 'LOG_FILE=web.log'
-  ExecStart = /usr/bin/env python3.10 /opt/vtl/automation/main.py
+  ExecStart = /opt/vtl/automation/venv/bin/python /opt/vtl/automation/main.py
   Restart = always
 
 [Install]
