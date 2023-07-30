@@ -31,15 +31,12 @@
                                             <input hidden name="login" value="{{ user.login }}" />
                                             <div class="field">
                                                 <select class="ui fluid dropdown" onchange="this.form.submit()" name="role">
-                                                    <option value="0" {{ 'selected' if user.role.value == 0 else '' }}>
-                                                        COMMON
-                                                    </option>
-                                                    <option value="1" {{ 'selected' if user.role.value == 1 else '' }}>
-                                                        MODERATOR
-                                                    </option>
-                                                    <option value="2" {{ 'selected' if user.role.value == 2 else '' }}>
-                                                        ADMIN
-                                                    </option>
+                                                    {% for role in roles %}
+                                                        <option value="{{ role.value }}"
+                                                                {{ 'selected' if user.role.value == role.value else '' }}>
+                                                            {{ role.name }}
+                                                        </option>
+                                                    {% endfor %}
                                                 </select>
                                             </div>
                                         </form>

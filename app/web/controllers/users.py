@@ -15,7 +15,7 @@ class Users():
     def index(self):
         current_role = UserRole(cherrypy.session['current_role'])
         users = User.all()
-        params = {'users': users, 'showForm': current_role.value >= UserRole.ADMIN.value}
+        params = {'users': users, 'showForm': current_role.value >= UserRole.ADMIN.value, 'roles': UserRole}
         return self.index_template.render(params)
 
     @cherrypy.expose
