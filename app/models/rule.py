@@ -2,42 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Flag, auto
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from app.config import Config
 from app.models import Device
 
-INSERT_SQL = '''
-    INSERT INTO "rules" (
-        "name",
-        "description",
-        "device_id",
-        "start_time",
-        "duration",
-        "days_of_week"
-    ) VALUES (?, ?, ?, ?, ?, ?)
-'''
-UPDATE_SQL = '''
-    UPDATE "rules"
-    SET "name" = ?,
-        "description" = ?,
-        "device_id" = ?,
-        "start_time" = ?,
-        "duration" = ?,
-        "days_of_week" = ?
-    WHERE "id" = ?
-'''
-FETCH_SQL = '''
-    SELECT
-        "rules"."id",
-        "rules"."name",
-        "rules"."description",
-        "rules"."device_id",
-        "rules"."start_time",
-        "rules"."duration",
-        "rules"."days_of_week"
-    FROM "rules"
-'''
+ATTRIBUTES = ["name", "description", "device_id", "start_time", "duration", "days_of_week"]
+PREFIXED_ATTRIBUTES = [f'"rules"."{attr}"' for attr in ATTRIBUTES]
+INSERT_SQL = f'INSERT INTO "rules" ({",".join(ATTRIBUTES)}) VALUES ({",".join(["?"] * len(ATTRIBUTES))})'
+UPDATE_SQL = f'UPDATE "rules" SET {",".join([f"{attr} = ?" for attr in ATTRIBUTES])} WHERE "id" = ?'
+FETCH_SQL = f'SELECT "rules"."id", {",".join(PREFIXED_ATTRIBUTES)} FROM "rules"'
 FETCH_SQL_ENABLED = f'{FETCH_SQL} INNER JOIN "devices" ON "rules"."device_id" = "devices"."id" AND "devices"."disabled" = 0'
 FETCH_SQL_START_ORDER = f'{FETCH_SQL} ORDER BY "start_time" ASC'
 
@@ -101,6 +75,11 @@ class Rule:
     def __post_init__(self):
         self.days_of_week = DayOfWeek.cast(self.days_of_week)
 
+    def __attribute_before_type_cast(self, attribute: str) -> Any:
+        if attribute == 'days_of_week':
+            return self.days_of_week.value if self.days_of_week is not None else None
+        return getattr(self, attribute)
+
     def get_device(self) -> Device | None:
         if self.device_id is None:
             return None
@@ -125,16 +104,12 @@ class Rule:
 
     def save(self):
         with Config.database.get_connection() as db:
-            dow_value = self.days_of_week.value if self.days_of_week is not None else None
+            attrs = [self.__attribute_before_type_cast(attr) for attr in ATTRIBUTES]
             if self.id is None:
-                cursor = db.execute(INSERT_SQL, (self.name, self.description,
-                                                 self.device_id, self.start_time, self.duration,
-                                                 dow_value))
+                cursor = db.execute(INSERT_SQL, attrs)
                 self.id = cursor.lastrowid
             else:
-                db.execute(UPDATE_SQL, (self.name, self.description,
-                                        self.device_id, self.start_time, self.duration,
-                                        dow_value, self.id))
+                db.execute(UPDATE_SQL, attrs + [self.id])
 
     def destroy(self):
         with Config.database.get_connection() as db:
