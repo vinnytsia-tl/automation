@@ -1,5 +1,10 @@
-import logging
+from __future__ import annotations
 
+import logging
+from dataclasses import dataclass
+from typing import Any, Optional
+
+import yaml
 from pygame import mixer
 
 from .device import Device
@@ -8,28 +13,62 @@ FADEOUT_TIME = 2000
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class AudioRunOptions:
+    file: str
+    fadeout: int
+
+    def __init__(self, data: dict):
+        self.__set_file(data['file'])
+        self.__set_fadeout(data.get('fadeout', FADEOUT_TIME))
+
+    def __set_file(self, file: Any):
+        assert isinstance(file, str)
+        self.file = file
+
+    def __set_fadeout(self, fadeout: Any):
+        assert isinstance(fadeout, int)
+        self.fadeout = fadeout
+
+
 class Audio(Device):
-    def __init__(self, file: str):
+    def __init__(self):
         mixer.init(buffer=1024)
-        self.sound = mixer.Sound(file)
-        logger.info('Audio initialized for file %s', file)
+        self.sounds = dict[str, mixer.Sound]()
 
-    def start(self):
-        super().start()
-        self.sound.play()
+    def parse_run_options(self, run_options: Optional[str]) -> AudioRunOptions:
+        assert isinstance(run_options, str)
+        opts = yaml.safe_load(run_options)
+        assert isinstance(opts, dict)
+        return AudioRunOptions(opts)
 
-    def stop(self, force: bool = False):
-        super().stop()
-        if force:
-            self.sound.stop()
+    def key(self, run_options: AudioRunOptions) -> str:
+        return run_options.file
+
+    def stop_delay(self, run_options: AudioRunOptions) -> float:
+        return run_options.fadeout / 1000
+
+    def preload(self, run_options: AudioRunOptions):
+        super().preload(run_options)
+        if run_options.file not in self.sounds:
+            self.sounds[run_options.file] = mixer.Sound(run_options.file)
+            logger.debug('Loaded sound file %s', run_options.file)
         else:
-            self.sound.fadeout(FADEOUT_TIME)
+            logger.debug('Sound file %s already loaded', run_options.file)
+
+    def start(self, run_options: AudioRunOptions):
+        super().start(run_options)
+        self.sounds[run_options.file].play()
+        logger.debug('Playing sound file %s', run_options.file)
+
+    def stop(self, run_options: AudioRunOptions):
+        super().stop(run_options)
+        self.sounds[run_options.file].fadeout(run_options.fadeout)
+        logger.debug('Fading out sound file %s for %s ms', run_options.file, run_options.fadeout)
 
     def destroy(self):
         super().destroy()
-        del self.sound
+        for sound in self.sounds.values():
+            sound.stop()
+        self.sounds.clear()
         mixer.quit()
-
-    @property
-    def stop_delay(self) -> int:
-        return FADEOUT_TIME

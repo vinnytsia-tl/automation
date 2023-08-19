@@ -3,6 +3,7 @@ import datetime
 import logging
 import signal
 import time
+from typing import Optional
 
 from app.models import Rule
 
@@ -47,25 +48,27 @@ class RuleScheduler:
                 logger.info('Skipping rule %s because its stop time is in the past', rule.name)
                 continue
             logger.info('Scheduling rule %s at %d', rule.name, start_time)
-            self.__schedule_device_run(rule.device_id, start_time + offset, rule.duration)
+            self.__schedule_device_run(rule.device_id, start_time + offset, rule.duration, rule.run_options)
         logger.info('Scheduling next rule scheduling at %d', midnight + SECONDS_IN_DAY)
         self.event_loop.call_at(midnight + SECONDS_IN_DAY + offset, self.__schedule_rules)
 
-    def __schedule_device_run(self, device_id: int, start_time: float, duration: int):
+    def __schedule_device_run(self, device_id: int, start_time: float, duration: int, run_options: Optional[str]):
         logger.info('Scheduling device %d to run for %d at %d', device_id, duration, start_time - self.event_loop_offset)
         entry = self.device_handler_pool.get(device_id)
         if entry is None:
             logger.error('Cannot schedule device %d because it has no entry in the pool', device_id)
             return
         model, handler = entry
-        self.event_loop.call_at(start_time, handler.run, duration)
+        opts = handler.parse_run_options(run_options)
+        handler.preload(opts)
+        self.event_loop.call_at(start_time, handler.run, duration, opts)
         if model.dependent_device_id is not None:
             if model.dependent_start_delay is None or model.dependent_stop_delay is None:
                 logger.error('Cannot schedule dependent device %d because it is not fully configured',
                              model.dependent_device_id)
                 return
             self.__schedule_device_run(model.dependent_device_id, start_time - model.dependent_start_delay,
-                                       duration + model.dependent_start_delay + model.dependent_stop_delay)
+                                       duration + model.dependent_start_delay + model.dependent_stop_delay, None)
 
     def __cancel_scheduled_tasks(self):
         logger.info('Canceling scheduled tasks')
