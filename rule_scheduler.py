@@ -5,6 +5,8 @@ if sys.version_info < (3, 10):
 
 # pylint: disable=wrong-import-position
 
+import pygame
+
 from app.config import Config
 from app.service import RuleScheduler, ensure_ntp_sync
 
@@ -12,6 +14,7 @@ from app.service import RuleScheduler, ensure_ntp_sync
 
 
 if __name__ == '__main__':
+    pygame.init()
     Config.load()
     Config.setup_app_logger()
     ensure_ntp_sync()
