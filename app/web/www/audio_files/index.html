@@ -1,0 +1,30 @@
+{% set active_tab = 'audio_files' %}
+{% extends 'templates/wrapper.html' %}
+{% block body %}
+<div class="ui container">
+    {% include "templates/menu.html" %}
+    <div class="ui segment">
+        <div class="ui grid">
+            <div class="row">
+                <div class="eight wide column">
+                    <h2 class="ui header">Присутні файли</h2>
+                    <ul>
+                        {% for file in files %}
+                            <li>{{ file }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="eight wide column">
+                    <h2 class="ui header">Завантажити нові файли</h2>
+                    <form class="ui form" method="post" action="audio_files/upload" enctype="multipart/form-data">
+                        <div class="field">
+                            <input type="file" name="files" required multiple>
+                        </div>
+                        <button class="ui button" type="submit">Завантажити</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
