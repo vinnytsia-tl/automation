@@ -17,6 +17,10 @@
         </select>
     </div>
     <div class="field">
+        <label>Параметри</label>
+        <input type="text" name="run_options" value="{{rule.run_options if rule is defined and rule.run_options}}">
+    </div>
+    <div class="field">
         <label>Час початку</label>
         <input type="text" name="start_time" value="{{rule.get_start_time() if rule is defined and rule.start_time}}" required>
     </div>

@@ -42,9 +42,9 @@ class Rules():
     @cherrypy.tools.allow(methods=['POST'])
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.MODERATOR)
-    def create(self, name: str, description: str, device_id: str, start_time: str, duration: str,
+    def create(self, name: str, description: str, device_id: str, run_options: str, start_time: str, duration: str,
                days_of_week: str | list[str]):
-        rule = Rule(name=name, description=description, device_id=int(device_id))
+        rule = Rule(name=name, description=description, device_id=int(device_id), run_options=run_options)
         rule.start_time = parse_duration(start_time)
         rule.duration = parse_duration(duration)
         if isinstance(days_of_week, str):
@@ -58,12 +58,13 @@ class Rules():
     @cherrypy.tools.allow(methods=['POST'])
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.MODERATOR)
-    def update(self, rule_id: str, name: str, description: str, device_id: str, start_time: str, duration: str,
-               days_of_week: str | list[str]):
+    def update(self, rule_id: str, name: str, description: str, device_id: str, run_options: str, start_time: str,
+               duration: str, days_of_week: str | list[str]):
         rule = Rule.find(int(rule_id))
         rule.name = name
         rule.description = description
         rule.device_id = int(device_id)
+        rule.run_options = run_options
         rule.start_time = parse_duration(start_time)
         rule.duration = parse_duration(duration)
         if isinstance(days_of_week, str):

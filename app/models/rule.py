@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Flag, auto
-from typing import List, Optional, Any
+from typing import Any, List, Optional
 
 from app.config import Config
 from app.models import Device
 
-ATTRIBUTES = ["name", "description", "device_id", "start_time", "duration", "days_of_week"]
+ATTRIBUTES = ["name", "description", "device_id", "start_time", "duration", "days_of_week", "run_options"]
 PREFIXED_ATTRIBUTES = [f'"rules"."{attr}"' for attr in ATTRIBUTES]
 INSERT_SQL = f'INSERT INTO "rules" ({",".join(ATTRIBUTES)}) VALUES ({",".join(["?"] * len(ATTRIBUTES))})'
 UPDATE_SQL = f'UPDATE "rules" SET {",".join([f"{attr} = ?" for attr in ATTRIBUTES])} WHERE "id" = ?'
@@ -71,6 +71,7 @@ class Rule:
     start_time: Optional[int] = None
     duration: Optional[int] = None
     days_of_week: Optional[DayOfWeek] = None
+    run_options: Optional[str] = None
 
     def __post_init__(self):
         self.days_of_week = DayOfWeek.cast(self.days_of_week)
