@@ -1,3 +1,5 @@
+from typing import Optional
+
 import cherrypy
 
 from app.config import Config
@@ -17,7 +19,7 @@ class Rules():
     @cherrypy.tools.authorize()
     def index(self):
         current_role = UserRole(cherrypy.session['current_role'])
-        rules = Rule.all_start_order()
+        rules = Rule.all()
         params = {'rules': rules, 'isModerator': current_role.value >= UserRole.MODERATOR.value, 'DayOfWeek': DayOfWeek}
         return self.index_template.render(params)
 
@@ -43,10 +45,11 @@ class Rules():
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.MODERATOR)
     def create(self, name: str, description: str, device_id: str, run_options: str, start_time: str, duration: str,
-               days_of_week: str | list[str]):
+               days_of_week: str | list[str], disabled: Optional[str] = None):
         rule = Rule(name=name, description=description, device_id=int(device_id), run_options=run_options)
         rule.start_time = parse_duration(start_time)
         rule.duration = parse_duration(duration)
+        rule.disabled = disabled == '1'
         if isinstance(days_of_week, str):
             rule.days_of_week = DayOfWeek.cast(days_of_week)
         else:
@@ -59,7 +62,7 @@ class Rules():
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.MODERATOR)
     def update(self, rule_id: str, name: str, description: str, device_id: str, run_options: str, start_time: str,
-               duration: str, days_of_week: str | list[str]):
+               duration: str, days_of_week: str | list[str], disabled: Optional[str] = None):
         rule = Rule.find(int(rule_id))
         rule.name = name
         rule.description = description
@@ -67,6 +70,7 @@ class Rules():
         rule.run_options = run_options
         rule.start_time = parse_duration(start_time)
         rule.duration = parse_duration(duration)
+        rule.disabled = disabled == '1'
         if isinstance(days_of_week, str):
             rule.days_of_week = DayOfWeek.cast(days_of_week)
         else:

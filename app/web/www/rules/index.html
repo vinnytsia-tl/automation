@@ -37,7 +37,7 @@
                         </thead>
                         <tbody>
                             {% for rule in rules %}
-                            <tr>
+                            <tr class="{{ 'error' if rule.disabled }}">
                                 <td>{{ rule.id }}</td>
                                 <td>{{ rule.name }}</td>
                                 <td>{{ rule.description }}</td>

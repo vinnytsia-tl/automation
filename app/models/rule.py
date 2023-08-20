@@ -7,13 +7,17 @@ from typing import Any, List, Optional
 from app.config import Config
 from app.models import Device
 
-ATTRIBUTES = ["name", "description", "device_id", "start_time", "duration", "days_of_week", "run_options"]
+ATTRIBUTES = ["name", "description", "device_id", "start_time", "duration", "days_of_week", "run_options", "disabled"]
 PREFIXED_ATTRIBUTES = [f'"rules"."{attr}"' for attr in ATTRIBUTES]
 INSERT_SQL = f'INSERT INTO "rules" ({",".join(ATTRIBUTES)}) VALUES ({",".join(["?"] * len(ATTRIBUTES))})'
 UPDATE_SQL = f'UPDATE "rules" SET {",".join([f"{attr} = ?" for attr in ATTRIBUTES])} WHERE "id" = ?'
 FETCH_SQL = f'SELECT "rules"."id", {",".join(PREFIXED_ATTRIBUTES)} FROM "rules"'
-FETCH_SQL_ENABLED = f'{FETCH_SQL} INNER JOIN "devices" ON "rules"."device_id" = "devices"."id" AND "devices"."disabled" = 0'
-FETCH_SQL_START_ORDER = f'{FETCH_SQL} ORDER BY "start_time" ASC'
+FETCH_SQL_ENABLED = f'''
+    {FETCH_SQL}
+    INNER JOIN "devices" ON "rules"."device_id" = "devices"."id" AND "devices"."disabled" = 0
+    WHERE "rules"."disabled" = 0
+'''
+FETCH_SQL_DEFAULT_ORDER = f'{FETCH_SQL} ORDER BY "rules"."disabled" ASC, "rules"."start_time" ASC'
 
 
 class DayOfWeek(Flag):
@@ -72,9 +76,11 @@ class Rule:
     duration: Optional[int] = None
     days_of_week: Optional[DayOfWeek] = None
     run_options: Optional[str] = None
+    disabled: bool = False
 
     def __post_init__(self):
         self.days_of_week = DayOfWeek.cast(self.days_of_week)
+        self.disabled = bool(self.disabled)  # sqlite3 returns 0 or 1
 
     def __attribute_before_type_cast(self, attribute: str) -> Any:
         if attribute == 'days_of_week':
@@ -118,12 +124,7 @@ class Rule:
 
     @staticmethod
     def all() -> List[Rule]:
-        cursor = Config.database.execute(FETCH_SQL)
-        return [Rule(*values) for values in cursor.fetchall()]
-
-    @staticmethod
-    def all_start_order() -> List[Rule]:
-        cursor = Config.database.execute(FETCH_SQL_START_ORDER)
+        cursor = Config.database.execute(FETCH_SQL_DEFAULT_ORDER)
         return [Rule(*values) for values in cursor.fetchall()]
 
     @staticmethod
