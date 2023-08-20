@@ -8,19 +8,43 @@
             <div class="row">
                 <div class="eight wide column">
                     <h2 class="ui header">Присутні файли</h2>
-                    <ul>
-                        {% for file in files %}
-                            <li>{{ file }}</li>
+                    <div class="ui list">
+                        {% if back_prefix is not none %}
+                            <a class="item" href="/audio_files?prefix={{ back_prefix }}">
+                                <i class="folder icon"></i>
+                                ..
+                            </a>
+                        {% endif %}
+                        {% for dir in dirs %}
+                            <a class="item" href="/audio_files?prefix={{ dir.prefix }}">
+                                <i class="folder icon"></i>
+                                {{ dir.name }}
+                            </a>
                         {% endfor %}
-                    </ul>
+                        {% for file in files %}
+                            <div class="item">
+                                <i class="file icon"></i>
+                                {{ file.name }}
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="eight wide column">
-                    <h2 class="ui header">Завантажити нові файли</h2>
-                    <form class="ui form" method="post" action="audio_files/upload" enctype="multipart/form-data">
+                    <h2 class="ui header">Завантажити файли</h2>
+                    <form class="ui form" method="post" action="audio_files/upload_files" enctype="multipart/form-data">
+                        <input type="hidden" name="prefix" value="{{ prefix }}">
                         <div class="field">
                             <input type="file" name="files" required multiple>
                         </div>
                         <button class="ui button" type="submit">Завантажити</button>
+                    </form>
+                    <h2 class="ui header">Створити директорію</h2>
+                    <form class="ui form" method="post" action="audio_files/create_dir" enctype="multipart/form-data">
+                        <input type="hidden" name="prefix" value="{{ prefix }}">
+                        <div class="field">
+                            <input type="text" name="name" required>
+                        </div>
+                        <button class="ui button" type="submit">Створити</button>
                     </form>
                 </div>
             </div>
