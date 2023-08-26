@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Optional
 
 import yaml
 from pygame import mixer
+
+from app.config import Config
 
 from .device import Device
 
@@ -15,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AudioRunOptions:
-    file: str
+    file: Path
     fadeout: int
 
     def __init__(self, data: dict):
@@ -24,7 +27,9 @@ class AudioRunOptions:
 
     def __set_file(self, file: Any):
         assert isinstance(file, str)
-        self.file = file
+        self.file = Path(file)
+        if not self.file.is_absolute():
+            self.file = Config.audio_folder.joinpath(self.file).resolve()
 
     def __set_fadeout(self, fadeout: Any):
         assert isinstance(fadeout, int)
@@ -34,7 +39,7 @@ class AudioRunOptions:
 class Audio(Device):
     def __init__(self):
         mixer.init(buffer=1024)
-        self.sounds = dict[str, mixer.Sound]()
+        self.sounds = dict[Path, mixer.Sound]()
 
     def parse_run_options(self, run_options: Optional[str]) -> AudioRunOptions:
         assert isinstance(run_options, str)
@@ -42,7 +47,7 @@ class Audio(Device):
         assert isinstance(opts, dict)
         return AudioRunOptions(opts)
 
-    def key(self, run_options: AudioRunOptions) -> str:
+    def key(self, run_options: AudioRunOptions) -> Path:
         return run_options.file
 
     def stop_delay(self, run_options: AudioRunOptions) -> float:
