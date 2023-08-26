@@ -1,0 +1,50 @@
+{% set active_tab = 'commands' %}
+{% extends 'templates/wrapper.html' %}
+{% block body %}
+<div class="ui container">
+    {% include "templates/menu.html" %}
+    {% if success is defined and success == 'True' %}
+        <div class="ui positive message">Успіх</div>
+    {% endif %}
+    {% if error is defined and error is not none %}
+        <div class="ui negative message">{{ error }}</div>
+    {% endif %}
+    <div class="ui segment">
+        <div class="ui grid">
+            <div class="row">
+                <div class="column">
+                    <h2 class="ui header">Керування пристроями</h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="column">
+                    <form class="ui form" method="post" action="/commands/perform">
+                        <div class="field">
+                            <label>Дія</label>
+                            <select class="ui fluid dropdown" name="action" required>
+                                <option value=""></option>
+                                <option value="device_start">Запуск</option>
+                                <option value="device_stop">Зупинка</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Пристрій</label>
+                            <select class="ui fluid dropdown" name="device_id" required>
+                                <option value=""></option>
+                                {% for dev in devices %}
+                                    <option value="{{dev.id}}">{{dev.name}}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Параметри</label>
+                            <textarea rows="2" name="run_options"></textarea>
+                        </div>
+                        <button class="ui button" type="submit">Запустити</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

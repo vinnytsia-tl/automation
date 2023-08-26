@@ -1,12 +1,20 @@
 import asyncio
 import logging
-from typing import Any, Hashable, Optional
+from typing import Any, Hashable, Optional, Protocol
 
 logger = logging.getLogger(__name__)
 
 
+class TimerHandle(Protocol):
+    def cancel(self):
+        ...
+
+    def when(self) -> float:
+        ...
+
+
 class Device:
-    stop_handles: dict[Any, asyncio.TimerHandle] = {}
+    stop_handles: dict[Any, TimerHandle] = {}
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}>'

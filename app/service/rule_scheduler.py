@@ -5,8 +5,10 @@ import signal
 import time
 from typing import Optional
 
+from app.config import Config
 from app.models import Rule
 
+from .command_handler import CommandHandler
 from .device_handler_pool import DeviceHandlerPool
 
 SECONDS_IN_DAY = 24 * 60 * 60
@@ -22,6 +24,7 @@ class RuleScheduler:
 
     def run_forever(self):
         self.__schedule_rules()
+        self.__run_command_handler()
         self.__register_signal_handlers()
         self.event_loop.run_forever()
 
@@ -75,6 +78,11 @@ class RuleScheduler:
         for task in asyncio.all_tasks(loop=self.event_loop):
             if not task.done() and not task.cancelled():
                 task.cancel()
+
+    def __run_command_handler(self):
+        server_task = self.event_loop.create_unix_server(lambda: CommandHandler(self.device_handler_pool),
+                                                         Config.command_socket_path.as_posix())
+        self.event_loop.create_task(server_task)
 
     def __register_signal_handlers(self):
         self.event_loop.add_signal_handler(signal.SIGINT, self.__handle_stop_signal)

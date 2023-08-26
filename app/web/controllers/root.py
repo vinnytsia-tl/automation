@@ -6,6 +6,7 @@ from app.common.web.utils import is_authenticated
 
 from .audio_files import AudioFiles
 from .auth import Auth
+from .commands import Commands
 from .devices import Devices
 from .home import Home
 from .rule_scheduler import RuleScheduler
@@ -24,6 +25,7 @@ class Root():
         self.users = Users()
         self.rule_scheduler = RuleScheduler()
         self.audio_files = AudioFiles()
+        self.commands = Commands()
         logger.debug("Created app controllers")
 
     @cherrypy.expose
