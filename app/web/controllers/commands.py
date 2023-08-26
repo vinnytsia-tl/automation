@@ -29,6 +29,10 @@ class Commands():
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.RUNNER)
     def perform(self, action: str, device_id: str, run_options: str):
+        exe_str = "SELECT username FROM sessions WHERE session_id = ?;"
+        cursor = Config.database.execute(exe_str, (cherrypy.session.id,))
+        username = cursor.fetchone()[0]
+        logger.info('User %s requested action %s on device %s with options %s', username, action, device_id, run_options)
         command = {'action': action, 'device_id': int(device_id), 'run_options': run_options}
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
             sock.connect(Config.command_socket_path.as_posix())
