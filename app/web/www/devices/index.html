@@ -27,9 +27,7 @@
                                 <th>Опис</th>
                                 <th>Тип</th>
                                 <th>Параметри</th>
-                                {% if isAdmin %}
                                 <th class="collapsing"></th>
-                                {% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -40,12 +38,12 @@
                                 <td>{{ dev.description }}</td>
                                 <td>{{ dev.type.name }}</td>
                                 <td>{{ dev.options }}</td>
-                                {% if isAdmin %}
-                                    <td>
-                                        <div class="ui buttons small">
-                                            <a href="/commands?device_id={{ dev.id }}" class="ui green button icon">
-                                                <i aria-hidden="true" class="play icon"></i>
-                                            </a>
+                                <td>
+                                    <div class="ui buttons small">
+                                        <a href="/commands?device_id={{ dev.id }}" class="ui green button icon">
+                                            <i aria-hidden="true" class="play icon"></i>
+                                        </a>
+                                        {% if isAdmin %}
                                             <a href="/devices/edit?device_id={{ dev.id }}" class="ui yellow button icon">
                                                 <i aria-hidden="true" class="edit icon"></i>
                                             </a>
@@ -58,9 +56,9 @@
                                                     <i aria-hidden="true" class="trash alternate outline icon"></i>
                                                 </a>
                                             {% endif %}
-                                        </div>
-                                    </td>
-                                {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
