@@ -34,8 +34,12 @@ class Commands():
         username = cursor.fetchone()[0]
         logger.info('User %s requested action %s on device %s with options %s', username, action, device_id, run_options)
         command = {'action': action, 'device_id': int(device_id), 'run_options': run_options}
+        response = {}
         with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
             sock.connect(Config.command_socket_path.as_posix())
             sock.sendall(json.dumps(command).encode())
             response = json.loads(sock.recv(1024).decode())
+
+        response['device_id'] = device_id
+        response['run_options'] = run_options
         raise cherrypy.HTTPRedirect(f'/commands?{urlencode(response)}')
