@@ -20,9 +20,9 @@ class Commands():
     @cherrypy.tools.allow(methods=['GET'])
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.RUNNER)
-    def index(self, success: Optional[str] = None, error: Optional[str] = None):
+    def index(self, device_id: str = "-1", success: Optional[str] = None, error: Optional[str] = None):
         devices = Device.enabled()
-        return self.template.render({'success': success, 'error': error, 'devices': devices})
+        return self.template.render({'success': success, 'error': error, 'devices': devices, 'device_id': int(device_id)})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])

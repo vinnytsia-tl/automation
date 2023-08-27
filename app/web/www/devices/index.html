@@ -43,6 +43,9 @@
                                 {% if isAdmin %}
                                     <td>
                                         <div class="ui buttons small">
+                                            <a href="/commands?device_id={{ dev.id }}" class="ui green button icon">
+                                                <i aria-hidden="true" class="play icon"></i>
+                                            </a>
                                             <a href="/devices/edit?device_id={{ dev.id }}" class="ui yellow button icon">
                                                 <i aria-hidden="true" class="edit icon"></i>
                                             </a>
