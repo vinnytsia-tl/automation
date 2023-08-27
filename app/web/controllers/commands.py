@@ -45,10 +45,14 @@ class Commands():
         logger.info('User %s requested action %s on device %s with options %s', username, action, device_id, run_options)
         command = {'action': action, 'device_id': int(device_id), 'run_options': run_options}
         response = {}
-        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
-            sock.connect(Config.command_socket_path.as_posix())
-            sock.sendall(json.dumps(command).encode())
-            response = json.loads(sock.recv(1024).decode())
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as sock:
+                sock.connect(Config.command_socket_path.as_posix())
+                sock.sendall(json.dumps(command).encode())
+                response = json.loads(sock.recv(1024).decode())
+        except Exception as err:  # pylint: disable=broad-except
+            logger.error(repr(err))
+            response['error'] = 'Помилка комунікації з rule scheduler'
 
         response['device_id'] = device_id
         response['run_options'] = run_options
