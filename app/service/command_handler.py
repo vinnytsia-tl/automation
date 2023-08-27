@@ -46,7 +46,7 @@ class CommandHandler(asyncio.Protocol):
                 raise ValueError(f'Unknown action {command}')
         except Exception as err:  # pylint: disable=broad-except
             logger.error(repr(err))
-            self.transport.write(json.dumps({'error': repr(err)}).encode())
+            self.transport.write(json.dumps({'error': str(err)}).encode())
         else:
             self.transport.write(json.dumps({'success': True}).encode())
 
