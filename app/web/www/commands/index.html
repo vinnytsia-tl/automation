@@ -32,15 +32,22 @@
                             <select class="ui fluid dropdown" name="device_id" required>
                                 <option value=""></option>
                                 {% for dev in devices %}
-                                    <option {{ 'selected' if device_id == dev.id }} value="{{dev.id}}">{{dev.name}}</option>
+                                    <option {{ 'selected' if selected_device.id == dev.id }} value="{{dev.id}}">{{dev.name}}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="field">
                             <label>Параметри</label>
-                            <textarea rows="2" name="run_options"></textarea>
+                            <textarea rows="2" name="run_options">{{ run_options if run_options != ""}}</textarea>
                         </div>
-                        <button class="ui button" type="submit">Запустити</button>
+                        <div class="ui fluid buttons">
+                            <button class="ui primary button" type="submit">Запустити</button>
+                            {% if selected_device is not none and selected_device.type.value == 3 %}
+                                <a href="/audio_files?file_callback=/commands?device_id={{selected_device.id}}" class="ui icon button">
+                                    <i aria-hidden="true" class="folder plus outline icon"></i> Обрати файл
+                                </a>
+                            {% endif %}
+                        </div>
                     </form>
                 </div>
             </div>

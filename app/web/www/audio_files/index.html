@@ -9,23 +9,30 @@
                 <div class="eight wide column">
                     <h2 class="ui header">Присутні файли</h2>
                     <div class="ui list">
-                        {% if back_prefix is not none %}
-                            <a class="item" href="/audio_files?prefix={{ back_prefix }}">
+                        {% if back_url is not none %}
+                            <a class="item" href="{{back_url}}">
                                 <i class="folder icon"></i>
                                 ..
                             </a>
                         {% endif %}
                         {% for dir in dirs %}
-                            <a class="item" href="/audio_files?prefix={{ dir.prefix }}">
+                            <a class="item" href="{{ dir.url }}">
                                 <i class="folder icon"></i>
                                 {{ dir.name }}
                             </a>
                         {% endfor %}
                         {% for file in files %}
-                            <div class="item">
-                                <i class="file icon"></i>
-                                {{ file.name }}
-                            </div>
+                            {% if file.has_url %}
+                                <a class="item" href="{{file.url}}">
+                                    <i class="file icon"></i>
+                                    {{ file.name }}
+                                </a>
+                            {% else %}
+                                <div class="item">
+                                    <i class="file icon"></i>
+                                    {{ file.name }}
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                 </div>
@@ -33,6 +40,7 @@
                     <h2 class="ui header">Завантажити файли</h2>
                     <form class="ui form" method="post" action="audio_files/upload_files" enctype="multipart/form-data">
                         <input type="hidden" name="prefix" value="{{ prefix }}">
+                        <input type="hidden" name="file_callback" value="{{ file_callback }}">
                         <div class="field">
                             <input type="file" name="files" required multiple>
                         </div>
@@ -41,6 +49,7 @@
                     <h2 class="ui header">Створити директорію</h2>
                     <form class="ui form" method="post" action="audio_files/create_dir" enctype="multipart/form-data">
                         <input type="hidden" name="prefix" value="{{ prefix }}">
+                        <input type="hidden" name="file_callback" value="{{ file_callback }}">
                         <div class="field">
                             <input type="text" name="name" required>
                         </div>

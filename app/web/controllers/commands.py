@@ -20,9 +20,19 @@ class Commands():
     @cherrypy.tools.allow(methods=['GET'])
     @cherrypy.tools.authenticate()
     @cherrypy.tools.authorize(role=UserRole.RUNNER)
-    def index(self, device_id: str = "-1", success: Optional[str] = None, error: Optional[str] = None):
+    def index(self, device_id: Optional[str] = None, file_opt: Optional[str] = None,
+              success: Optional[str] = None, error: Optional[str] = None,
+              run_options: Optional[str] = ""):
         devices = Device.enabled()
-        return self.template.render({'success': success, 'error': error, 'devices': devices, 'device_id': int(device_id)})
+        if file_opt is not None:
+            run_options = f"file: '{file_opt}'"
+
+        selected_device = None
+        if device_id is not None:
+            selected_device = Device.find(int(device_id))
+
+        return self.template.render({'success': success, 'error': error, 'devices': devices,
+                                     'selected_device': selected_device, 'run_options': run_options})
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
