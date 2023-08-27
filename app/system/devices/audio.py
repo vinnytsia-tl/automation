@@ -22,17 +22,21 @@ class AudioRunOptions:
     fadeout: int
 
     def __init__(self, data: dict):
-        self.__set_file(data['file'])
+        self.__set_file(data.get('file', None))
         self.__set_fadeout(data.get('fadeout', FADEOUT_TIME))
 
     def __set_file(self, file: Any):
-        assert isinstance(file, str)
+        if not isinstance(file, str) or file == '':
+            raise ValueError("Обов'язковий параметр file - відсутній")
         self.file = Path(file)
         if not self.file.is_absolute():
             self.file = Config.audio_folder.joinpath(self.file).resolve()
+        if not self.file.is_file():
+            raise ValueError("Вказаний файл не існує")
 
     def __set_fadeout(self, fadeout: Any):
-        assert isinstance(fadeout, int)
+        if not isinstance(fadeout, int):
+            raise ValueError("Параметр fadeout - має бути число")
         self.fadeout = fadeout
 
 
@@ -42,9 +46,11 @@ class Audio(Device):
         self.sounds = dict[Path, mixer.Sound]()
 
     def parse_run_options(self, run_options: Optional[str]) -> AudioRunOptions:
-        assert isinstance(run_options, str)
+        if not isinstance(run_options, str):
+            raise ValueError("Параметри відсутні")
         opts = yaml.safe_load(run_options)
-        assert isinstance(opts, dict)
+        if not isinstance(opts, dict):
+            raise ValueError("Помилка читання параметрів")
         return AudioRunOptions(opts)
 
     def key(self, run_options: AudioRunOptions) -> Path:
