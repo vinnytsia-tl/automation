@@ -28,7 +28,7 @@ class AudioFiles():
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     @cherrypy.tools.authenticate()
-    @cherrypy.tools.authorize(role=UserRole.MODERATOR)
+    @cherrypy.tools.authorize(role=UserRole.RUNNER)
     def index(self, prefix: str = ''):
         prefix_list, folder = self.__handle_prefix(prefix)
         dirs, files = [], []
