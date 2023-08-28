@@ -23,7 +23,7 @@
                         {% endfor %}
                         {% for file in files %}
                             {% if file.has_url %}
-                                <a class="item" href="{{file.url}}">
+                                <a class="item" href="{{ file.url }}">
                                     <i class="file icon"></i>
                                     {{ file.name }}
                                 </a>
