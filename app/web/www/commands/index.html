@@ -32,7 +32,7 @@
                             <select class="ui fluid dropdown" name="device_id" required>
                                 <option value=""></option>
                                 {% for dev in devices %}
-                                    <option {{ 'selected' if selected_device.id == dev.id }} value="{{dev.id}}">{{dev.name}}</option>
+                                    <option {{ 'selected' if selected_device is not none and selected_device.id == dev.id }} value="{{ dev.id }}">{{ dev.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
