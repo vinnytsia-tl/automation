@@ -39,7 +39,7 @@ class FileEntry:
     @property
     def url(self) -> Optional[str]:
         if self.file_callback is not None:
-            file_opt = self.name if self.prefix == '' else f"{self.prefix}/{self.name}"
+            file_opt = f'{self.prefix}/{self.name}' if self.prefix else self.name
             return f"{self.file_callback}&{to_query_string({'file_opt': file_opt})}"
         return None
 
