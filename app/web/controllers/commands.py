@@ -27,9 +27,7 @@ class Commands():
         if file_opt is not None:
             run_options = f"file: '{file_opt}'"
 
-        selected_device = None
-        if device_id is not None:
-            selected_device = Device.find(int(device_id))
+        selected_device = Device.find(int(device_id)) if device_id else None
 
         return self.template.render({'success': success, 'error': error, 'devices': devices,
                                      'selected_device': selected_device, 'run_options': run_options})
