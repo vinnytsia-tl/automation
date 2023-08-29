@@ -1,7 +1,9 @@
 import asyncio
 import datetime
 import logging
+import os
 import signal
+import socket
 import time
 from typing import Optional
 
@@ -80,8 +82,13 @@ class RuleScheduler:
                 task.cancel()
 
     def __run_command_handler(self):
+        if Config.command_socket_path.exists():
+            Config.command_socket_path.unlink()
+        cmd_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        cmd_sock.bind(Config.command_socket_path.as_posix())
+        os.chmod(Config.command_socket_path, 0o777)
         server_task = self.event_loop.create_unix_server(lambda: CommandHandler(self.device_handler_pool),
-                                                         Config.command_socket_path.as_posix())
+                                                         sock=cmd_sock)
         self.event_loop.create_task(server_task)
 
     def __register_signal_handlers(self):
