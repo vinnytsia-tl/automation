@@ -15,5 +15,36 @@
             {% endfor %}
         </div>
     </div>
+    <div class="ui segment">
+        <h2 class="ui header">Стан виконання правил</h2>
+        <table class="ui celled table">
+            <thead>
+                <tr>
+                    <th>Правило</th>
+                    <th>Пристрій</th>
+                    <th>Параметри запуску</th>
+                    <th>Час запуску</th>
+                    <th>Час зупинки</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if rule_states is defined and rule_states|length > 0 %}
+                    {% for rule_state_entry in rule_states %}
+                        <tr class="{{ rule_state_entry.status_css_class }}">
+                            <td>{{ rule_state_entry.rule_name }}</td>
+                            <td>{{ rule_state_entry.device_name }}</td>
+                            <td>{{ rule_state_entry.run_options }}</td>
+                            <td>{{ rule_state_entry.formatted_start_time }}</td>
+                            <td>{{ rule_state_entry.formatted_stop_time }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="center aligned">Немає записів</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

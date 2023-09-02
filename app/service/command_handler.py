@@ -2,7 +2,9 @@ import asyncio
 import json
 import logging
 from math import inf as infinity
-from typing import Optional
+from typing import Any, Optional
+
+from app.models import RuleStateEntry
 
 from .device_handler_pool import DeviceHandlerPool
 
@@ -20,8 +22,9 @@ class InfiniteStopHandle:
 class CommandHandler(asyncio.Protocol):
     transport: Optional[asyncio.Transport] = None
 
-    def __init__(self, device_handler_pool: DeviceHandlerPool):
+    def __init__(self, device_handler_pool: DeviceHandlerPool, rule_states: dict[int, RuleStateEntry]):
         self.device_handler_pool = device_handler_pool
+        self.rule_states = rule_states
 
     def connection_made(self, transport: asyncio.BaseTransport):
         logger.debug('Received a new connection')
@@ -34,21 +37,22 @@ class CommandHandler(asyncio.Protocol):
         logger.debug('Received data %s', repr(data))
         command = json.loads(data.decode())
         action: str = command['action']
-        device_id: int = command['device_id']
-        run_options: Optional[str] = command['run_options']
+        response: Any = {'success': True}
 
         try:
             if action == 'device_start':
-                self.__device_start(device_id, run_options)
+                self.__device_start(command['device_id'], command['run_options'])
             elif action == 'device_stop':
-                self.__device_stop(device_id, run_options)
+                self.__device_stop(command['device_id'], command['run_options'])
+            elif action == 'status':
+                response = self.__report_status()
             else:
                 raise ValueError(f'Unknown action {command}')
         except Exception as err:  # pylint: disable=broad-except
             logger.error(repr(err))
             self.transport.write(json.dumps({'error': str(err)}).encode())
         else:
-            self.transport.write(json.dumps({'success': True}).encode())
+            self.transport.write(json.dumps(response).encode())
 
     def __fetch_device(self, device_id: int, run_options: Optional[str]):
         entry = self.device_handler_pool.get(device_id)
@@ -93,3 +97,6 @@ class CommandHandler(asyncio.Protocol):
 
         logger.debug('Stopping device %d', device_id)
         handler.stop(opts)
+
+    def __report_status(self) -> list[dict[str, Any]]:
+        return [rule_state_entry.as_json() for rule_state_entry in self.rule_states.values()]

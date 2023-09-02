@@ -8,7 +8,7 @@ import time
 from typing import Optional
 
 from app.config import Config
-from app.models import Rule
+from app.models import Rule, RuleStateEntry, RuleStatus
 
 from .command_handler import CommandHandler
 from .device_handler_pool import DeviceHandlerPool
@@ -23,6 +23,7 @@ class RuleScheduler:
         self.device_handler_pool.load_devices()
         self.event_loop = asyncio.get_event_loop()
         self.event_loop_offset = 0  # calculated during schedule
+        self.rule_states = dict[int, RuleStateEntry]()
 
     def run_forever(self):
         self.__schedule_rules()
@@ -53,11 +54,13 @@ class RuleScheduler:
                 logger.info('Skipping rule %s because its stop time is in the past', rule.name)
                 continue
             logger.info('Scheduling rule %s at %d', rule.name, start_time)
-            self.__schedule_device_run(rule.device_id, start_time + offset, rule.duration, rule.run_options)
+            self.__schedule_device_run(rule.device_id, start_time + offset, rule.duration, rule.run_options,
+                                       rule.id, rule.name)
         logger.info('Scheduling next rule scheduling at %d', midnight + SECONDS_IN_DAY)
         self.event_loop.call_at(midnight + SECONDS_IN_DAY + offset, self.__schedule_rules)
 
-    def __schedule_device_run(self, device_id: int, start_time: float, duration: int, run_options: Optional[str]):
+    def __schedule_device_run(self, device_id: int, start_time: float, duration: int, run_options: Optional[str] = None,
+                              rule_id: Optional[int] = None, rule_name: Optional[str] = None):
         logger.info('Scheduling device %d to run for %d at %d', device_id, duration, start_time - self.event_loop_offset)
         entry = self.device_handler_pool.get(device_id)
         if entry is None:
@@ -66,14 +69,29 @@ class RuleScheduler:
         model, handler = entry
         opts = handler.parse_run_options(run_options)
         handler.preload(opts)
-        self.event_loop.call_at(start_time, handler.run, duration, opts)
+
+        if rule_id is not None:
+            self.rule_states[rule_id] = RuleStateEntry(RuleStatus.SCHEDULED, rule_name, model.name, run_options)
+
+            def on_start():
+                self.rule_states[rule_id].status = RuleStatus.RUNNING
+                self.rule_states[rule_id].recorded_start_time = time.time()
+
+            def on_stop():
+                self.rule_states[rule_id].status = RuleStatus.STOPPED
+                self.rule_states[rule_id].recorded_stop_time = time.time()
+
+            self.event_loop.call_at(start_time, handler.run, duration, opts, on_start, on_stop)
+        else:
+            self.event_loop.call_at(start_time, handler.run, duration, opts)
+
         if model.dependent_device_id is not None:
             if model.dependent_start_delay is None or model.dependent_stop_delay is None:
                 logger.error('Cannot schedule dependent device %d because it is not fully configured',
                              model.dependent_device_id)
                 return
             self.__schedule_device_run(model.dependent_device_id, start_time - model.dependent_start_delay,
-                                       duration + model.dependent_start_delay + model.dependent_stop_delay, None)
+                                       duration + model.dependent_start_delay + model.dependent_stop_delay)
 
     def __cancel_scheduled_tasks(self):
         logger.info('Canceling scheduled tasks')
@@ -87,7 +105,7 @@ class RuleScheduler:
         cmd_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         cmd_sock.bind(Config.command_socket_path.as_posix())
         os.chmod(Config.command_socket_path, 0o777)
-        server_task = self.event_loop.create_unix_server(lambda: CommandHandler(self.device_handler_pool),
+        server_task = self.event_loop.create_unix_server(lambda: CommandHandler(self.device_handler_pool, self.rule_states),
                                                          sock=cmd_sock)
         self.event_loop.create_task(server_task)
 

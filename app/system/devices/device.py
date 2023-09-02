@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Any, Hashable, Optional, Protocol
+from typing import Any, Callable, Hashable, Optional, Protocol
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Device:
         for stop_handle in self.stop_handles.values():
             stop_handle.cancel()
 
-    def run(self, duration: int, run_options: Any):
+    def run(self, duration: int, run_options: Any, on_start: Optional[Callable] = None, on_stop: Optional[Callable] = None):
         logger.info('Running %s for %d seconds', repr(self), duration)
 
         key = self.key(run_options)  # pylint: disable=assignment-from-none
@@ -51,6 +51,11 @@ class Device:
 
         event_loop = asyncio.get_event_loop()
         stop_time = event_loop.time() + duration - self.stop_delay(run_options)
+
+        if on_start is not None:
+            event_loop.call_soon(on_start)
+        if on_stop is not None:
+            event_loop.call_at(stop_time, on_stop)
 
         stop_handle = self.stop_handles.get(key, None)
 
