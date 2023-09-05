@@ -14,7 +14,8 @@ class TimerHandle(Protocol):
 
 
 class Device:
-    stop_handles: dict[Any, TimerHandle] = {}
+    def __init__(self) -> None:
+        self.stop_handles: dict[Any, TimerHandle] = {}
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}>'

@@ -11,6 +11,7 @@ class GPIO(Device):
     PORT_PATH = '/sys/class/gpio/gpio{}'
 
     def __init__(self, port: int):
+        super().__init__()
         self.path = self.PORT_PATH.format(port)
         if not path.exists(self.path):
             self.__write_to_file__(self.INIT_PATH, str(port))

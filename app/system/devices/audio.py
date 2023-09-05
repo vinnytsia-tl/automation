@@ -42,6 +42,7 @@ class AudioRunOptions:
 
 class Audio(Device):
     def __init__(self):
+        super().__init__()
         mixer.init(buffer=1024)
         self.sounds = dict[Path, mixer.Sound]()
 
