@@ -20,10 +20,12 @@ logger = logging.getLogger(__name__)
 class AudioRunOptions:
     file: Path
     fadeout: int
+    volume: int
 
     def __init__(self, data: dict):
         self.__set_file(data.get('file', None))
         self.__set_fadeout(data.get('fadeout', FADEOUT_TIME))
+        self.__set_volume(data.get('volume', 100))
 
     def __set_file(self, file: Any):
         if not isinstance(file, str) or file == '':
@@ -38,6 +40,11 @@ class AudioRunOptions:
         if not isinstance(fadeout, int):
             raise ValueError("Параметр fadeout - має бути число")
         self.fadeout = fadeout
+
+    def __set_volume(self, volume: Any):
+        if not isinstance(volume, int) or volume < 0 or volume > 100:
+            raise ValueError("Параметр volume - має бути число від 0 до 100")
+        self.volume = volume
 
 
 class Audio(Device):
@@ -71,7 +78,8 @@ class Audio(Device):
     def start(self, run_options: AudioRunOptions):
         super().start(run_options)
         self.sounds[run_options.file].play()
-        logger.debug('Playing sound file %s', run_options.file)
+        self.sounds[run_options.file].set_volume(run_options.volume / 100)
+        logger.debug('Playing sound file %s with volume %d', run_options.file, run_options.volume)
 
     def stop(self, run_options: AudioRunOptions):
         super().stop(run_options)
